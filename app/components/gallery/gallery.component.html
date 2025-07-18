@@ -1,0 +1,44 @@
+<section id="gallery" class="gallery-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">La Nostra Galleria</h2>
+      <p class="section-subtitle">
+        Scopri l'atmosfera e i sapori del Bella Vista
+      </p>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="category-filters">
+      <mat-chip-listbox class="category-chips">
+        <mat-chip-option
+          *ngFor="let category of categories"
+          [selected]="selectedCategory === category.id"
+          (click)="filterByCategory(category.id)"
+          class="category-chip"
+        >
+          <mat-icon>{{ category.icon }}</mat-icon>
+          {{ category.name }}
+        </mat-chip-option>
+      </mat-chip-listbox>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div class="gallery-grid">
+      <div
+        *ngFor="let image of filteredImages"
+        class="gallery-item"
+        (click)="openLightbox(image)"
+      >
+        <div class="image-container">
+          <img [src]="image.src" [alt]="image.alt" class="gallery-image" />
+          <div class="image-overlay">
+            <div class="overlay-content">
+              <h3>{{ image.title }}</h3>
+              <mat-icon class="zoom-icon">zoom_in</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

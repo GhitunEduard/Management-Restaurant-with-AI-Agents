@@ -1,0 +1,233 @@
+.reservations-section {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff8e7 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-family: "Playfair Display", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2d5016;
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.reservation-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.info-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 2rem;
+}
+
+.info-card mat-card-title {
+  font-family: "Playfair Display", serif;
+  color: #2d5016;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item mat-icon {
+  color: #d4af37;
+  margin-top: 0.2rem;
+}
+
+.info-item h4 {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  color: #2d5016;
+  margin: 0 0 0.5rem 0;
+}
+
+.info-item p {
+  font-family: "Open Sans", sans-serif;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.form-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.form-card mat-card-title {
+  font-family: "Playfair Display", serif;
+  color: #2d5016;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reservation-form {
+  padding: 1rem 0;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section h3 {
+  font-family: "Playfair Display", serif;
+  color: #2d5016;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-family: "Open Sans", sans-serif;
+}
+
+.mat-mdc-form-field-focus-overlay {
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: white;
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 1rem 3rem;
+  border-radius: 30px;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+  transition: all 0.3s ease;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+::ng-deep .success-snackbar {
+  background: #4caf50;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .reservation-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .reservations-section {
+    padding: 4rem 0;
+  }
+
+  .info-card {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .submit-button {
+    width: 100%;
+    padding: 1rem 2rem;
+  }
+}

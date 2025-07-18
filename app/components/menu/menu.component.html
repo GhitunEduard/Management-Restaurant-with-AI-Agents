@@ -1,0 +1,162 @@
+<section id="menu" class="menu-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Meniul Nostru</h2>
+      <p class="section-subtitle">
+        Arome autentice din Italia, direct la masa dumneavoastră
+      </p>
+    </div>
+
+    <div class="phone-orders-panel">
+      <div class="panel-content">
+        <div class="panel-header">
+          <div class="header-text">
+            <h3 class="panel-title">Comandă Telefonică</h3>
+            <p class="panel-subtitle">
+              Preparate autentice italiene, livrate direct la dumneavoastră
+            </p>
+          </div>
+          <div class="header-icon">
+            <mat-icon>restaurant_menu</mat-icon>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="contact-grid">
+            <div class="contact-section">
+              <div class="contact-label">Telefon</div>
+              <div class="contact-value">{{ restaurantPhone }}</div>
+            </div>
+            <div class="contact-section">
+              <div class="contact-label">Program</div>
+              <div class="contact-value">
+                Luni - Duminică<br />12:00 - 23:00
+              </div>
+            </div>
+            <div class="contact-section">
+              <div class="contact-label">Livrare</div>
+              <div class="contact-value">30-45 minute<br />în Cluj-Napoca</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button
+            mat-raised-button
+            class="primary-action"
+            (click)="callRestaurant()"
+          >
+            <mat-icon>call</mat-icon>
+            <span>Sună pentru Comandă</span>
+          </button>
+          <button
+            mat-stroked-button
+            class="secondary-action"
+            (click)="openWhatsApp()"
+          >
+            <mat-icon>chat</mat-icon>
+            <span>WhatsApp</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <div class="search-container">
+        <div class="search-wrapper">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            class="search-input"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+            placeholder="Căutați preparate, ingrediente sau descrieri..."
+            aria-label="Caută în meniu"
+          />
+          <button
+            *ngIf="searchTerm"
+            class="clear-search"
+            (click)="searchTerm = ''; onSearchChange()"
+            aria-label="Șterge căutarea"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="category-filters">
+        <div class="category-buttons">
+          <button
+            *ngFor="let category of categories; trackBy: trackByCategory"
+            class="category-button"
+            [class.active]="selectedCategory === category.id"
+            (click)="filterByCategory(category.id)"
+            [attr.aria-pressed]="selectedCategory === category.id"
+          >
+            <mat-icon class="category-icon">{{ category.icon }}</mat-icon>
+            <span class="category-text">{{ category.name }}</span>
+            <span class="category-count">{{ category.count }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-content">
+      <div class="menu-grid" *ngIf="filteredItems.length > 0">
+        <div
+          *ngFor="let item of filteredItems; trackBy: trackByMenuItem"
+          class="menu-card"
+        >
+          <div class="card-image-container">
+            <img
+              [src]="item.image"
+              [alt]="item.name"
+              class="menu-image"
+              onerror="this.onerror=null;this.src='/assets/placeholder.svg';"
+            />
+            <div class="price-badge">{{ item.price }} RON</div>
+            <div
+              class="badges"
+              *ngIf="item.isVegetarian || item.isSpicy || item.isPopular"
+            >
+              <span
+                class="badge popular"
+                *ngIf="item.isPopular"
+                title="Popular"
+              >
+                <mat-icon>star</mat-icon>
+              </span>
+              <span
+                class="badge vegetarian"
+                *ngIf="item.isVegetarian"
+                title="Vegetarian"
+              >
+                <mat-icon>eco</mat-icon>
+              </span>
+              <span class="badge spicy" *ngIf="item.isSpicy" title="Picant">
+                <mat-icon>local_fire_department</mat-icon>
+              </span>
+            </div>
+          </div>
+          <div class="card-content">
+            <h4 class="item-name">{{ item.name }}</h4>
+            <p class="item-description">{{ item.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-results" *ngIf="filteredItems.length === 0">
+        <mat-icon class="no-results-icon">search_off</mat-icon>
+        <h3>Niciun preparat găsit</h3>
+        <p>
+          Încercați să modificați criteriile de căutare sau selectați o altă
+          categorie.
+        </p>
+        <button mat-raised-button class="reset-button" (click)="resetFilters()">
+          <mat-icon>refresh</mat-icon>
+          Resetează filtrele
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

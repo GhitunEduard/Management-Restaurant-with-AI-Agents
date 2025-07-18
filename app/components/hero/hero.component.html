@@ -1,0 +1,37 @@
+<section id="hero" class="hero-section">
+  <div class="hero-background">
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1 class="hero-title">Bun venit la Bella Vista</h1>
+      <p class="hero-subtitle">
+        Bucătărie italiană autentică în inima orașului Cluj-Napoca. Unde fiecare
+        preparat spune o poveste despre tradiție și pasiune.
+      </p>
+      <div class="hero-buttons">
+        <button
+          mat-raised-button
+          class="primary-button"
+          (click)="scrollToSection('menu')"
+        >
+          <mat-icon>restaurant_menu</mat-icon>
+          Descoperă Meniul
+        </button>
+        <button
+          mat-raised-button
+          class="secondary-button"
+          (click)="scrollToSection('reservations')"
+        >
+          <mat-icon>event_seat</mat-icon>
+          Rezervă o masă
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" (click)="scrollToSection('about')">
+    <mat-icon>keyboard_arrow_down</mat-icon>
+  </div>
+</section>

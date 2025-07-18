@@ -1,0 +1,165 @@
+<section id="reviews" class="reviews-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Ce Spun Oaspeții Noștri</h2>
+      <p class="section-subtitle">
+        Părerile voastre sunt cea mai de preț comoară a noastră
+      </p>
+    </div>
+
+    <div class="reviews-content">
+      <div class="reviews-list">
+        <h3 class="reviews-title">Recenzii Recente</h3>
+        <div *ngIf="pagedReviews && !pagedReviews.empty; else noReviews">
+          <div class="reviews-grid">
+            <mat-card
+              *ngFor="let review of pagedReviews.content"
+              class="review-card"
+            >
+              <mat-card-header>
+                <mat-icon mat-card-avatar class="reviewer-avatar-icon"
+                  >account_circle</mat-icon
+                >
+                <mat-card-title class="reviewer-name">{{
+                  review.name
+                }}</mat-card-title>
+                <mat-card-subtitle class="review-date">{{
+                  review.submissionDate | date : "dd/MM/yyyy HH:mm"
+                }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="review-rating">
+                  <mat-icon
+                    *ngFor="let _ of getStars(review.rating, 10)"
+                    class="star filled"
+                    >star</mat-icon
+                  >
+                  <mat-icon
+                    *ngFor="let _ of getEmptyStars(review.rating, 10)"
+                    class="star"
+                    >star_border</mat-icon
+                  >
+                </div>
+                <p class="review-comment">{{ review.reviewMessage }}</p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div
+            class="pagination"
+            *ngIf="pagedReviews && pagedReviews.totalPages > 1"
+          >
+            <button
+              mat-button
+              (click)="goToPage(currentPage - 1)"
+              [disabled]="pagedReviews.first"
+            >
+              Anterior
+            </button>
+            <span
+              >Pagina {{ pagedReviews.number + 1 }} din
+              {{ pagedReviews.totalPages }}</span
+            >
+            <button
+              mat-button
+              (click)="goToPage(currentPage + 1)"
+              [disabled]="pagedReviews.last"
+            >
+              Următor
+            </button>
+          </div>
+        </div>
+        <ng-template #noReviews>
+          <p>Nu există nicio recenzie încă. Fii primul care lasă una!</p>
+        </ng-template>
+      </div>
+
+      <div class="review-form-container">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>rate_review</mat-icon>
+              Lasă o Recenzie
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form
+              [formGroup]="reviewForm"
+              (ngSubmit)="onSubmit()"
+              class="review-form"
+            >
+              <div class="rating-section">
+                <h4>Evaluarea ta (1-10)</h4>
+                <div class="star-rating">
+                  <mat-icon
+                    *ngFor="
+                      let star of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+                      let i = index
+                    "
+                    class="star-button"
+                    [class.filled]="i < selectedRating"
+                    (click)="setRating(i + 1)"
+                  >
+                    {{ i < selectedRating ? "star" : "star_border" }}
+                  </mat-icon>
+                </div>
+              </div>
+
+              <div class="form-fields">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Nume</mat-label>
+                    <input
+                      matInput
+                      formControlName="name"
+                      placeholder="Numele tău"
+                    />
+                    <mat-error>{{ getErrorMessage("name") }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Email</mat-label>
+                    <input
+                      matInput
+                      type="email"
+                      formControlName="email"
+                      placeholder="emailul@tau.com"
+                    />
+                    <mat-icon matSuffix>email</mat-icon>
+                    <mat-error>{{ getErrorMessage("email") }}</mat-error>
+                  </mat-form-field>
+                </div>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Recenzia ta</mat-label>
+                  <textarea
+                    matInput
+                    formControlName="reviewMessage"
+                    rows="4"
+                    placeholder="Împărtășește experiența ta..."
+                  ></textarea>
+                  <mat-error>{{ getErrorMessage("reviewMessage") }}</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  mat-raised-button
+                  type="submit"
+                  class="submit-button"
+                  [disabled]="
+                    isSubmitting || reviewForm.invalid || selectedRating === 0
+                  "
+                >
+                  <mat-icon *ngIf="!isSubmitting">send</mat-icon>
+                  <mat-icon *ngIf="isSubmitting" class="spinning"
+                    >hourglass_empty</mat-icon
+                  >
+                  {{ isSubmitting ? "Se trimite..." : "Trimite Recenzia" }}
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</section>

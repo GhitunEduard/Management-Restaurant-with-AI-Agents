@@ -1,0 +1,96 @@
+<footer class="footer">
+  <div class="footer-content">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <div class="footer-logo">
+            <h2>Bella Vista</h2>
+            <p class="tagline">Restaurant Italian</p>
+          </div>
+          <p class="footer-description">
+            Bucătărie italiană autentică în inima orașului Cluj-Napoca. Unde
+            fiecare preparat spune o poveste despre tradiție și pasiune.
+          </p>
+          <div class="social-links">
+            <button
+              *ngFor="let social of displaySocialMedia"
+              mat-icon-button
+              class="social-button"
+              (click)="openSocialMedia(social.url)"
+              [attr.aria-label]="social.name"
+            >
+              <mat-icon>{{ social.icon }}</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Linkuri Rapide</h3>
+          <ul class="footer-links">
+            <li *ngFor="let link of quickLinks">
+              <button
+                mat-button
+                class="footer-link"
+                (click)="scrollToSection(link.section)"
+              >
+                {{ link.name }}
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Contact</h3>
+          <div class="contact-info">
+            <div class="contact-item">
+              <mat-icon>place</mat-icon>
+              <span>{{ displayContactInfo?.address }}</span>
+            </div>
+            <div class="contact-item" (click)="callPhone()">
+              <mat-icon>phone</mat-icon>
+              <span>{{ displayContactInfo?.phone }}</span>
+            </div>
+            <div class="contact-item" (click)="sendEmail()">
+              <mat-icon>email</mat-icon>
+              <span>{{ displayContactInfo?.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Program</h3>
+          <div class="opening-hours">
+            <div
+              *ngFor="let item of displayOpeningHours"
+              class="hours-item"
+              [class.closed]="item.closed"
+            >
+              <span class="day">{{ item.day }}</span>
+              <span class="time">{{ item.hours }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="footer-bottom-content">
+        <p class="copyright">
+          © {{ currentYear }} Bella Vista Ristorante. Toate drepturile
+          rezervate.
+        </p>
+        <div class="footer-bottom-links">
+          <button mat-button class="bottom-link">
+            Politică de Confidențialitate
+          </button>
+          <button mat-button class="bottom-link">Termeni și Condiții</button>
+          <button mat-button class="bottom-link">Politică de Cookie-uri</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

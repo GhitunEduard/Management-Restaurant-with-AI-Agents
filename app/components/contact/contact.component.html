@@ -1,0 +1,157 @@
+<section id="contact" class="contact-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Contactează-ne</h2>
+      <p class="section-subtitle">
+        Suntem aici pentru a-ți face experiența de neuitat
+      </p>
+    </div>
+
+    <div *ngIf="displayContactInfo" class="contact-content">
+      <div class="contact-info">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title
+              ><mat-icon>location_on</mat-icon> Unde Ne Găsiți</mat-card-title
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <div class="contact-item">
+              <mat-icon>place</mat-icon>
+              <div class="contact-details">
+                <h4>Adresă</h4>
+                <p>{{ displayContactInfo.address }}</p>
+                <button
+                  mat-stroked-button
+                  class="action-button"
+                  (click)="openMaps()"
+                >
+                  <mat-icon>map</mat-icon> Vezi pe Hartă
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title
+              ><mat-icon>contact_phone</mat-icon> Contact Direct</mat-card-title
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <div class="contact-item">
+              <mat-icon>phone</mat-icon>
+              <div class="contact-details">
+                <h4>Telefon</h4>
+                <p>{{ displayContactInfo.phone }}</p>
+                <button
+                  mat-stroked-button
+                  class="action-button"
+                  (click)="callPhone()"
+                >
+                  <mat-icon>call</mat-icon> Sună Acum
+                </button>
+              </div>
+            </div>
+            <div class="contact-item">
+              <mat-icon>email</mat-icon>
+              <div class="contact-details">
+                <h4>Email</h4>
+                <p>{{ displayContactInfo.email }}</p>
+                <button
+                  mat-stroked-button
+                  class="action-button"
+                  (click)="sendEmail()"
+                >
+                  <mat-icon>send</mat-icon> Trimite Email
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title
+              ><mat-icon>schedule</mat-icon> Program de
+              Funcționare</mat-card-title
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <div class="hours-list">
+              <div
+                *ngFor="let schedule of displayOpeningHours"
+                class="hours-item"
+                [class.closed]="schedule.closed"
+              >
+                <span class="day">{{ schedule.day }}</span>
+                <span class="hours">{{ schedule.hours }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="contact-visual">
+        <div class="map-container">
+          <google-map height="350px" width="100%" [options]="mapOptions">
+            <map-marker
+              *ngIf="markerPosition"
+              [position]="markerPosition"
+              [options]="markerOptions!"
+            ></map-marker>
+          </google-map>
+        </div>
+
+        <mat-card class="social-card">
+          <mat-card-header>
+            <mat-card-title
+              ><mat-icon>share</mat-icon> Urmărește-ne</mat-card-title
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <div class="social-buttons">
+              <a
+                *ngFor="let social of displaySocialMedia"
+                mat-mini-fab
+                [href]="social.url"
+                target="_blank"
+                class="social-button"
+                [matTooltip]="social.name"
+                matTooltipPosition="above"
+                [style.--social-color]="social.color"
+                [attr.aria-label]="'Urmărește-ne pe ' + social.name"
+              >
+                <mat-icon>{{ social.icon }}</mat-icon>
+              </a>
+            </div>
+            <p class="social-description">
+              Fii la curent cu noutățile, evenimentele speciale și promoțiile
+              noastre exclusive!
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="newsletter-card">
+          <mat-card-header>
+            <mat-card-title
+              ><mat-icon>mail_outline</mat-icon> Newsletter</mat-card-title
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Înscrie-te la newsletter-ul nostru pentru a primi oferte exclusive
+              și noutăți din lumea Bella Vista.
+            </p>
+            <div class="newsletter-form">
+              <button mat-raised-button class="newsletter-button">
+                <mat-icon>notifications</mat-icon> Înscrie-te Acum
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</section>

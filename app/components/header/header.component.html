@@ -1,0 +1,48 @@
+<mat-toolbar [class.scrolled]="isScrolled" class="header-toolbar">
+  <div class="header-container">
+    <div class="logo" (click)="scrollToSection('hero')">
+      <h1>Bella Vista</h1>
+      <span class="tagline">Ristorante Italiano</span>
+    </div>
+
+    <nav class="desktop-nav">
+      <button mat-button (click)="scrollToSection('about')">Despre Noi</button>
+      <button mat-button (click)="scrollToSection('menu')">Meniu</button>
+      <button mat-button (click)="scrollToSection('gallery')">Galerie</button>
+      <button mat-button (click)="scrollToSection('reviews')">Recenzii</button>
+      <button mat-button (click)="scrollToSection('contact')">Contact</button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="cta-button"
+        (click)="scrollToSection('reservations')"
+      >
+        Rezervă o masă
+      </button>
+    </nav>
+
+    <button
+      mat-icon-button
+      class="mobile-menu-button"
+      (click)="toggleMobileMenu()"
+    >
+      <mat-icon>{{ isMobileMenuOpen ? "close" : "menu" }}</mat-icon>
+    </button>
+  </div>
+
+  <div class="mobile-nav" [class.open]="isMobileMenuOpen">
+    <button mat-button (click)="scrollToSection('about')">Despre Noi</button>
+    <button mat-button (click)="scrollToSection('menu')">Meniu</button>
+    <button mat-button (click)="scrollToSection('gallery')">Galerie</button>
+    <button mat-button (click)="scrollToSection('reviews')">Recenzii</button>
+    <button mat-button (click)="scrollToSection('contact')">Contact</button>
+    <button
+      mat-raised-button
+      color="primary"
+      class="cta-button"
+      (click)="scrollToSection('reservations')"
+    >
+      Rezervă o masă
+    </button>
+  </div>
+</mat-toolbar>

@@ -1,0 +1,179 @@
+<section id="reservations" class="reservations-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Rezervă-ți Masa</h2>
+      <p class="section-subtitle">Asigură-ți experiența culinară italiană</p>
+    </div>
+
+    <div class="reservation-content">
+      <div class="reservation-info">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>info</mat-icon>
+              Informații Importante
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-item">
+              <mat-icon>schedule</mat-icon>
+              <div>
+                <h4>Program de Servire</h4>
+                <p>Prânz: 12:00 - 15:00<br />Cină: 19:00 - 23:00</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>group</mat-icon>
+              <div>
+                <h4>Grupuri Mari</h4>
+                <p>
+                  Pentru grupuri mai mari de 10 persoane, vă rugăm să ne
+                  contactați direct.
+                </p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>event</mat-icon>
+              <div>
+                <h4>Anulări</h4>
+                <p>
+                  Anulări gratuite cu până la 2 ore înainte de ora rezervării.
+                </p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>phone</mat-icon>
+              <div>
+                <h4>Contact Direct</h4>
+                <p>+40 264 123 456<br />info{{ "@" }}bellavista.ro</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="reservation-form-container">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>restaurant</mat-icon>
+              Detalii Rezervare
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form
+              [formGroup]="reservationForm"
+              (ngSubmit)="onSubmit()"
+              class="reservation-form"
+            >
+              <div class="form-section">
+                <h3>Informații Personale</h3>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Nume</mat-label>
+                    <input
+                      matInput
+                      formControlName="firstName"
+                      placeholder="Numele tău"
+                    />
+                    <mat-error>{{ getErrorMessage("firstName") }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Prenume</mat-label>
+                    <input
+                      matInput
+                      formControlName="lastName"
+                      placeholder="Prenumele tău"
+                    />
+                    <mat-error>{{ getErrorMessage("lastName") }}</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Telefon</mat-label>
+                    <input
+                      matInput
+                      formControlName="phone"
+                      placeholder="+40 xxx xxx xxx"
+                    />
+                    <mat-icon matSuffix>phone</mat-icon>
+                    <mat-error>{{ getErrorMessage("phone") }}</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Detalii Rezervare</h3>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Data</mat-label>
+                    <input
+                      matInput
+                      [matDatepicker]="picker"
+                      formControlName="date"
+                      [min]="minDate"
+                    />
+                    <mat-datepicker-toggle
+                      matIconSuffix
+                      [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-error>{{ getErrorMessage("date") }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Ora</mat-label>
+                    <mat-select formControlName="time">
+                      <mat-option *ngFor="let time of timeSlots" [value]="time">
+                        {{ time }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>{{ getErrorMessage("time") }}</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Număr de Oaspeți</mat-label>
+                    <mat-select formControlName="guests">
+                      <mat-option *ngFor="let size of partySize" [value]="size">
+                        {{ size }} {{ size === 1 ? "persoană" : "persoane" }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>{{ getErrorMessage("guests") }}</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>Cereri Speciale</h3>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Note suplimentare</mat-label>
+                  <textarea
+                    matInput
+                    formControlName="specialRequests"
+                    rows="4"
+                    placeholder="Alergii, ocazii speciale, cerințe particulare..."
+                  ></textarea>
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  mat-raised-button
+                  type="submit"
+                  class="submit-button"
+                  [disabled]="isSubmitting || reservationForm.invalid"
+                >
+                  <mat-icon *ngIf="!isSubmitting">event_seat</mat-icon>
+                  <mat-icon *ngIf="isSubmitting" class="spinning"
+                    >hourglass_empty</mat-icon
+                  >
+                  {{ isSubmitting ? "Se trimite..." : "Rezervă Masa" }}
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</section>

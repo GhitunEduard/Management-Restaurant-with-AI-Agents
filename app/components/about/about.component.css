@@ -1,0 +1,296 @@
+.about-section {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff8e7 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-family: "Playfair Display", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2d5016;
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 5rem;
+}
+
+.story-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.story-card:hover {
+  transform: translateY(-5px);
+}
+
+.story-card h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.8rem;
+  color: #2d5016;
+  margin-bottom: 1.5rem;
+}
+
+.story-card p {
+  font-family: "Open Sans", sans-serif;
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.about-image {
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.chef-image {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.about-image:hover .chef-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.image-overlay h4 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-overlay p {
+  font-family: "Open Sans", sans-serif;
+  font-style: italic;
+  color: #d4af37;
+}
+
+.values-section {
+  text-align: center;
+}
+
+.values-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2.5rem;
+  color: #2d5016;
+  margin-bottom: 3rem;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.value-card {
+  padding: 2rem;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+
+  /* Enhanced centering for the entire card */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 320px; /* Ensure consistent card height */
+}
+
+.value-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.value-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  transition: transform 0.3s ease;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.value-card:hover .value-icon {
+  transform: scale(1.1);
+}
+
+.value-icon mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+/* Enhanced centering for mat-card-header */
+.value-card mat-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.value-card mat-card-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.4rem;
+  color: #2d5016;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Enhanced centering for mat-card-content */
+.value-card mat-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  padding: 0;
+  flex-grow: 1; /* Allow content to grow and fill available space */
+}
+
+.value-card mat-card-content p {
+  font-family: "Open Sans", sans-serif;
+  line-height: 1.6;
+  color: #666;
+  margin: 0;
+  text-align: center;
+  max-width: 100%;
+}
+
+/* Override Angular Material default styles for better centering */
+.value-card .mat-mdc-card-header {
+  padding: 0 !important;
+}
+
+.value-card .mat-mdc-card-content {
+  padding: 0 !important;
+}
+
+.value-card .mat-mdc-card-header .mat-mdc-card-title {
+  margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .about-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+  }
+
+  .values-title {
+    font-size: 2rem;
+  }
+
+  .story-card {
+    padding: 2rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .about-section {
+    padding: 4rem 0;
+  }
+
+  .value-card {
+    min-height: 280px; /* Adjust minimum height for mobile */
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .story-card {
+    padding: 1.5rem;
+  }
+
+  .story-card h3 {
+    font-size: 1.5rem;
+  }
+
+  .value-card {
+    min-height: 260px; /* Further adjust for smaller screens */
+    padding: 1.25rem;
+  }
+
+  .value-icon {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 1rem;
+  }
+
+  .value-icon mat-icon {
+    font-size: 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .value-card mat-card-title {
+    font-size: 1.2rem;
+  }
+
+  .value-card mat-card-content p {
+    font-size: 0.9rem;
+  }
+}

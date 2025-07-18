@@ -1,0 +1,384 @@
+.reviews-section {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff8e7 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-family: "Playfair Display", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2d5016;
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.rating-summary {
+  margin-bottom: 4rem;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.rating-overview {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.average-rating {
+  text-align: center;
+}
+
+.rating-number {
+  font-family: "Playfair Display", serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: #d4af37;
+  display: block;
+  line-height: 1;
+}
+
+.stars-display {
+  margin: 1rem 0;
+}
+
+.stars-display .star {
+  color: #d4af37;
+  font-size: 1.5rem;
+  margin: 0 0.1rem;
+}
+
+.total-reviews {
+  font-family: "Open Sans", sans-serif;
+  color: #666;
+  margin: 0;
+}
+
+.rating-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rating-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rating-label {
+  font-family: "Open Sans", sans-serif;
+  font-size: 0.9rem;
+  color: #666;
+  min-width: 60px;
+}
+
+.bar-container {
+  flex: 1;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  transition: width 0.3s ease;
+}
+
+.rating-count {
+  font-family: "Open Sans", sans-serif;
+  font-size: 0.9rem;
+  color: #666;
+  min-width: 20px;
+  text-align: right;
+}
+
+.reviews-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.reviews-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2rem;
+  color: #2d5016;
+  margin-bottom: 2rem;
+}
+
+.reviews-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.reviewer-avatar {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.reviewer-name {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  color: #2d5016;
+}
+
+.review-date {
+  font-family: "Open Sans", sans-serif;
+  color: #999;
+}
+
+.review-rating {
+  margin-bottom: 1rem;
+}
+
+.review-rating .star {
+  color: #d4af37;
+  font-size: 1.2rem;
+  margin-right: 0.1rem;
+}
+
+.review-rating .star:not(.filled) {
+  color: #e0e0e0;
+}
+
+.review-comment {
+  font-family: "Open Sans", sans-serif;
+  line-height: 1.6;
+  color: #555;
+  margin: 0;
+}
+
+.form-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 2rem;
+}
+
+.form-card mat-card-title {
+  font-family: "Playfair Display", serif;
+  color: #2d5016;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-section {
+  margin-bottom: 2rem;
+}
+
+.rating-section h4 {
+  font-family: "Open Sans", sans-serif;
+  color: #2d5016;
+  margin-bottom: 1rem;
+}
+
+.star-rating {
+  display: flex;
+  flex-wrap: wrap; /* Permitem trecerea pe randul urmator */
+  justify-content: flex-start; /* Aliniem la stanga pentru un look curat */
+  gap: 0.2rem;
+  margin-bottom: 1rem; /* Adaugam putin spatiu dedesubt */
+}
+
+.star-button {
+  font-size: 1.6rem; /* <<< MODIFICAREA CHEIE: Am redus dimensiunea de la 2rem */
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Restul regulilor pentru .star-button:hover etc. raman neschimbate */
+.star-button:hover,
+.star-button.filled {
+  color: #d4af37;
+  transform: scale(1.1);
+}
+
+.star-button:hover,
+.star-button.filled {
+  color: #d4af37;
+  transform: scale(1.1);
+}
+
+.form-fields {
+  margin-bottom: 2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: white;
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  min-width: 180px;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+::ng-deep .success-snackbar {
+  background: #4caf50;
+  color: white;
+}
+
+::ng-deep .error-snackbar {
+  background: #f44336;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .rating-overview {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+
+  .reviews-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .reviews-section {
+    padding: 4rem 0;
+  }
+
+  .form-card {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .rating-number {
+    font-size: 3rem;
+  }
+
+  .submit-button {
+    width: 100%;
+  }
+}
+
+.reviewer-avatar-icon {
+  width: 50px;
+  height: 50px;
+  font-size: 50px;
+  color: #ccc;
+  border-radius: 50%;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+  font-family: "Open Sans", sans-serif;
+}
