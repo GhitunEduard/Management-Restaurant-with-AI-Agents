@@ -1,0 +1,575 @@
+<div
+  class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200"
+>
+  <div class="w-full p-8">
+    <!-- Header Section -->
+    <header class="mb-8">
+      <div
+        class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"
+      >
+        <div class="flex-1">
+          <h1
+            class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3"
+          >
+            <i
+              class="fas fa-history text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
+            ></i>
+            Activity Logs
+          </h1>
+          <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">
+            Monitor system activities and user actions in real-time
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 flex items-center text-sm"
+            [disabled]="isLoading()"
+            (click)="loadLogs()"
+            [attr.aria-label]="
+              isLoading() ? 'Refreshing logs...' : 'Refresh logs'
+            "
+          >
+            <i
+              class="fas fa-sync-alt mr-2"
+              [class.fa-spin]="isLoading()"
+              aria-hidden="true"
+            ></i>
+            <span>{{ isLoading() ? "Refreshing..." : "Refresh" }}</span>
+          </button>
+
+          <button
+            type="button"
+            [class]="
+              autoRefresh()
+                ? 'px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 flex items-center text-sm'
+                : 'px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors duration-200 flex items-center text-sm'
+            "
+            (click)="toggleAutoRefresh()"
+            [attr.aria-label]="
+              autoRefresh() ? 'Disable auto-refresh' : 'Enable auto-refresh'
+            "
+            [attr.aria-pressed]="autoRefresh()"
+          >
+            <i class="fas fa-clock mr-2" aria-hidden="true"></i>
+            <span>Auto-refresh</span>
+          </button>
+
+          <button
+            type="button"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 flex items-center text-sm"
+            [disabled]="filteredLogs().length === 0"
+            (click)="exportLogs()"
+            aria-label="Export filtered logs to CSV"
+          >
+            <i class="fas fa-download mr-2" aria-hidden="true"></i>
+            <span>Export</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Last Updated Info -->
+      <div
+        class="mt-4 text-sm text-gray-500 dark:text-gray-400 flex items-center"
+      >
+        <i class="fas fa-clock mr-2"></i>
+        Auto-refresh every 30 seconds
+      </div>
+    </header>
+
+    <!-- Filters Section -->
+    <section class="mb-8" aria-label="Log filters">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6"
+      >
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Filters
+          </h2>
+          <div class="flex items-center gap-3">
+            <span
+              *ngIf="activeFilterCount() > 0"
+              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+              [attr.aria-label]="activeFilterCount() + ' filters active'"
+            >
+              {{ activeFilterCount() }} active
+            </span>
+            <button
+              *ngIf="activeFilterCount() > 0"
+              type="button"
+              class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors duration-200"
+              (click)="clearFilters()"
+              aria-label="Clear all filters"
+            >
+              Clear all
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Log Type Filter -->
+          <div class="flex flex-col gap-2">
+            <label
+              for="logTypeFilter"
+              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Log Type</label
+            >
+            <select
+              id="logTypeFilter"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              [value]="selectedLogType()"
+              (change)="onLogTypeChange($any($event.target).value)"
+              aria-describedby="logTypeHelp"
+            >
+              <option
+                *ngFor="let option of logTypeOptions"
+                [value]="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+            <div id="logTypeHelp" class="sr-only">
+              Filter logs by their type or category
+            </div>
+          </div>
+
+          <!-- Operation Type Filter -->
+          <div class="flex flex-col gap-2">
+            <label
+              for="operationTypeFilter"
+              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Operation</label
+            >
+            <select
+              id="operationTypeFilter"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              [value]="selectedOperationType()"
+              (change)="onOperationTypeChange($any($event.target).value)"
+              aria-describedby="operationTypeHelp"
+            >
+              <option
+                *ngFor="let option of operationTypeOptions"
+                [value]="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+            <div id="operationTypeHelp" class="sr-only">
+              Filter logs by the type of operation performed
+            </div>
+          </div>
+
+          <!-- Search Filter -->
+          <div class="flex flex-col gap-2 lg:col-span-2">
+            <label
+              for="searchFilter"
+              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Search</label
+            >
+            <div class="relative">
+              <i
+                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
+                aria-hidden="true"
+              ></i>
+              <input
+                id="searchFilter"
+                type="text"
+                class="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                placeholder="Search in messages, types, or operations..."
+                [value]="searchTerm()"
+                (input)="onSearchChange($any($event.target).value)"
+                aria-describedby="searchHelp"
+              />
+              <button
+                *ngIf="searchTerm()"
+                type="button"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+                (click)="onSearchChange('')"
+                aria-label="Clear search"
+              >
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div id="searchHelp" class="sr-only">
+              Search through log messages and metadata
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Filters Display -->
+        <div
+          *ngIf="activeFilterCount() > 0"
+          class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"
+          role="region"
+          aria-label="Active filters"
+        >
+          <div class="flex flex-wrap gap-2">
+            <span
+              *ngIf="selectedLogType() !== 'all'"
+              class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800 cursor-pointer transition-colors duration-200"
+              role="button"
+              tabindex="0"
+              (click)="onLogTypeChange('all')"
+              (keydown.enter)="onLogTypeChange('all')"
+              (keydown.space)="onLogTypeChange('all')"
+              [attr.aria-label]="
+                'Remove log type filter: ' + formatLogType(selectedLogType())
+              "
+            >
+              Type: {{ formatLogType(selectedLogType()) }}
+              <i
+                class="fas fa-times text-xs opacity-70 hover:opacity-100"
+                aria-hidden="true"
+              ></i>
+            </span>
+
+            <span
+              *ngIf="selectedOperationType() !== 'all'"
+              class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800 cursor-pointer transition-colors duration-200"
+              role="button"
+              tabindex="0"
+              (click)="onOperationTypeChange('all')"
+              (keydown.enter)="onOperationTypeChange('all')"
+              (keydown.space)="onOperationTypeChange('all')"
+              [attr.aria-label]="
+                'Remove operation filter: ' +
+                formatOperationType(selectedOperationType())
+              "
+            >
+              Operation: {{ formatOperationType(selectedOperationType()) }}
+              <i
+                class="fas fa-times text-xs opacity-70 hover:opacity-100"
+                aria-hidden="true"
+              ></i>
+            </span>
+
+            <span
+              *ngIf="searchTerm()"
+              class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800 cursor-pointer transition-colors duration-200"
+              role="button"
+              tabindex="0"
+              (click)="onSearchChange('')"
+              (keydown.enter)="onSearchChange('')"
+              (keydown.space)="onSearchChange('')"
+              [attr.aria-label]="'Remove search filter: ' + searchTerm()"
+            >
+              Search: "{{ searchTerm() }}"
+              <i
+                class="fas fa-times text-xs opacity-70 hover:opacity-100"
+                aria-hidden="true"
+              ></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading State -->
+    <div
+      *ngIf="isLoading() && logs().length === 0"
+      class="flex items-center justify-center py-20"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="text-center">
+        <div
+          class="w-16 h-16 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-spinner fa-spin text-2xl" aria-hidden="true"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          Loading Activity Logs
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400">
+          Please wait while we fetch the latest activity data...
+        </p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error() && !isLoading()" class="text-center py-20" role="alert">
+      <div
+        class="w-16 h-16 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-4"
+      >
+        <i class="fas fa-exclamation-triangle text-2xl" aria-hidden="true"></i>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        Unable to Load Activity Logs
+      </h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">{{ error() }}</p>
+      <button
+        type="button"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+        (click)="loadLogs()"
+      >
+        <i class="fas fa-redo mr-2" aria-hidden="true"></i>
+        Try Again
+      </button>
+    </div>
+
+    <!-- Logs Content -->
+    <main
+      *ngIf="!isLoading() || logs().length > 0"
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+    >
+      <!-- Results Header -->
+      <div
+        class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              Activity Timeline
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Showing {{ paginatedLogs().length }} of {{ totalItems() }} logs
+              <span
+                *ngIf="activeFilterCount() > 0"
+                class="text-blue-600 dark:text-blue-400 font-medium ml-1"
+                >(filtered)</span
+              >
+            </p>
+          </div>
+
+          <div
+            *ngIf="isLoading() && logs().length > 0"
+            class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+            role="status"
+            aria-live="polite"
+          >
+            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+            <span>Updating...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logs List -->
+      <div
+        class="divide-y divide-gray-200 dark:divide-gray-700"
+        role="log"
+        aria-live="polite"
+        aria-label="Activity logs"
+      >
+        <!-- Log Item -->
+        <article
+          *ngFor="let log of paginatedLogs(); trackBy: trackByLogId"
+          class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200"
+          [attr.aria-label]="'Log entry: ' + (log?.message || 'No message')"
+        >
+          <div class="flex gap-4">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center"
+            >
+              <i
+                [class]="getLogTypeIcon(log?.logType || '')"
+                [class.text-emerald-600]="
+                  getOperationTypeColor(log?.operationType || '') === 'emerald'
+                "
+                [class.dark:text-emerald-400]="
+                  getOperationTypeColor(log?.operationType || '') === 'emerald'
+                "
+                [class.text-blue-600]="
+                  getOperationTypeColor(log?.operationType || '') === 'blue'
+                "
+                [class.dark:text-blue-400]="
+                  getOperationTypeColor(log?.operationType || '') === 'blue'
+                "
+                [class.text-red-600]="
+                  getOperationTypeColor(log?.operationType || '') === 'red'
+                "
+                [class.dark:text-red-400]="
+                  getOperationTypeColor(log?.operationType || '') === 'red'
+                "
+                [class.text-purple-600]="
+                  getOperationTypeColor(log?.operationType || '') === 'purple'
+                "
+                [class.dark:text-purple-400]="
+                  getOperationTypeColor(log?.operationType || '') === 'purple'
+                "
+                [class.text-orange-600]="
+                  getOperationTypeColor(log?.operationType || '') === 'orange'
+                "
+                [class.dark:text-orange-400]="
+                  getOperationTypeColor(log?.operationType || '') === 'orange'
+                "
+                [class.text-gray-600]="
+                  getOperationTypeColor(log?.operationType || '') === 'slate'
+                "
+                [class.dark:text-gray-400]="
+                  getOperationTypeColor(log?.operationType || '') === 'slate'
+                "
+                aria-hidden="true"
+              ></i>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <!-- Log Header -->
+              <header
+                class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4"
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    [class]="getLogTypeBadgeClasses(log?.logType || '')"
+                    [attr.aria-label]="
+                      'Log type: ' + formatLogType(log!.logType)
+                    "
+                  >
+                    <i class="fas fa-tag mr-1" aria-hidden="true"></i>
+                    {{ formatLogType(log!.logType) }}
+                  </span>
+
+                  <span
+                    [class]="getOperationBadgeClasses(log?.operationType || '')"
+                    [attr.aria-label]="
+                      'Operation: ' + formatOperationType(log!.operationType)
+                    "
+                  >
+                    <i
+                      [class]="getOperationIcon(log!.operationType)"
+                      class="mr-1"
+                      aria-hidden="true"
+                    ></i>
+                    {{ formatOperationType(log!.operationType) }}
+                  </span>
+                </div>
+
+                <div class="text-right flex-shrink-0">
+                  <time
+                    class="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 cursor-help transition-colors duration-200 flex items-center justify-end"
+                    [attr.datetime]="log?.timestamp"
+                    [attr.title]="formatTimestamp(log?.timestamp || '')"
+                  >
+                    <i class="fas fa-clock mr-1" aria-hidden="true"></i>
+                    {{ getRelativeTime(log?.timestamp || "") }}
+                  </time>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {{ formatTimestamp(log?.timestamp || "") }}
+                  </div>
+                </div>
+              </header>
+
+              <!-- Log Message -->
+              <div
+                class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed"
+                [innerHTML]="
+                  highlightKeywords(log?.message || 'No message available')
+                "
+                [attr.aria-label]="
+                  'Log message: ' + (log?.message || 'No message available')
+                "
+              ></div>
+
+              <!-- Log Footer -->
+              <footer
+                class="pt-3 border-t border-gray-200 dark:border-gray-700"
+              >
+                <span
+                  class="text-xs text-gray-500 dark:text-gray-400 font-mono flex items-center"
+                  [attr.aria-label]="'Log ID: ' + (log?.id || 'N/A')"
+                >
+                  <i class="fas fa-fingerprint mr-1" aria-hidden="true"></i>
+                  {{ log?.id || "N/A" }}
+                </span>
+              </footer>
+            </div>
+          </div>
+        </article>
+
+        <!-- Empty State -->
+        <div
+          *ngIf="filteredLogs().length === 0 && !isLoading() && !error()"
+          class="text-center py-20"
+          role="status"
+        >
+          <div
+            class="w-16 h-16 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <i class="fas fa-inbox text-2xl" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            No Activity Logs Found
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-6">
+            <span *ngIf="activeFilterCount() > 0">
+              No logs match your current filters. Try adjusting your search
+              criteria or clearing filters.
+            </span>
+            <span *ngIf="activeFilterCount() === 0">
+              No activity logs are available at the moment. System activities
+              will appear here as they occur.
+            </span>
+          </p>
+          <button
+            *ngIf="activeFilterCount() > 0"
+            type="button"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+            (click)="clearFilters()"
+          >
+            <i class="fas fa-filter mr-2" aria-hidden="true"></i>
+            Clear Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <nav
+        *ngIf="totalPages() > 1"
+        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50"
+        role="navigation"
+        aria-label="Activity logs pagination"
+      >
+        <div
+          class="flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div class="text-sm text-gray-700 dark:text-gray-300">
+            <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
+              [disabled]="currentPage() === 1"
+              (click)="goToPreviousPage()"
+              aria-label="Go to previous page"
+            >
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>
+              Previous
+            </button>
+
+            <div class="flex items-center gap-1">
+              <button
+                *ngFor="let page of getPageNumbers()"
+                type="button"
+                class="w-10 h-10 text-sm font-medium rounded-lg transition-colors duration-200"
+                [class]="
+                  currentPage() === page
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                "
+                (click)="goToPage(page)"
+                [attr.aria-label]="'Go to page ' + page"
+                [attr.aria-current]="currentPage() === page ? 'page' : null"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2"
+              [disabled]="currentPage() === totalPages()"
+              (click)="goToNextPage()"
+              aria-label="Go to next page"
+            >
+              Next
+              <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </nav>
+    </main>
+  </div>
+</div>

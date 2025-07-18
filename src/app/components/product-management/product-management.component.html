@@ -1,0 +1,1026 @@
+<div class="w-full min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+    <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+      <div
+        *ngFor="let notification of notifications"
+        class="'px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform transition-all duration-300 ' + (notification.type === 'success' ? 'bg-green-500 text-white' : notification.type === 'error' ? 'bg-red-500 text-white' : notification.type === 'warning' ? 'bg-yellow-500 text-white' ? 'bg-blue-500 text-white')"
+      >
+        <i
+          [class]="
+            'fas ' +
+            (notification.type === 'success'
+              ? 'fa-check-circle'
+              : notification.type === 'error'
+              ? 'fa-times-circle'
+              : notification.type === 'warning'
+              ? 'fa-exclamation-triangle'
+              : 'fa-info-circle')
+          "
+        ></i>
+        <span class="text-sm">{{ notification.message }}</span>
+        <button
+          (click)="removeNotification(notification.id)"
+          class="ml-2 hover:opacity-75 flex-shrink-0"
+        >
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="w-full mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        Product Management
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Manage your categories, ingredients, and menu items with advanced
+        filtering and pagination
+      </p>
+    </div>
+
+    <div
+      class="w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6"
+    >
+      <div class="flex border-b border-gray-200 dark:border-gray-700">
+        <button
+          (click)="switchView('products')"
+          [class]="
+            'flex-1 px-6 py-4 text-sm font-medium transition-colors duration-200 ' +
+            (currentView === 'products'
+              ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300')
+          "
+        >
+          <i class="fas fa-utensils mr-2"></i>
+          Products
+        </button>
+        <button
+          (click)="switchView('categories')"
+          [class]="
+            'flex-1 px-6 py-4 text-sm font-medium transition-colors duration-200 ' +
+            (currentView === 'categories'
+              ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/20'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300')
+          "
+        >
+          <i class="fas fa-folder mr-2"></i>
+          Categories
+        </button>
+        <button
+          (click)="switchView('ingredients')"
+          [class]="
+            'flex-1 px-6 py-4 text-sm font-medium transition-colors duration-200 ' +
+            (currentView === 'ingredients'
+              ? 'text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 bg-green-50 dark:bg-green-900/20'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300')
+          "
+        >
+          <i class="fas fa-leaf mr-2"></i>
+          Ingredients
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+    >
+      <div
+        class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4"
+      >
+        <div class="flex items-center space-x-2">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{
+              currentView === "products"
+                ? "Products"
+                : currentView === "categories"
+                ? "Categories"
+                : "Ingredients"
+            }}
+          </h3>
+          <span
+            *ngIf="getActiveFiltersCount() > 0"
+            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+          >
+            <i class="fas fa-filter mr-1"></i>
+            {{ getActiveFiltersCount() }} active
+          </span>
+          <span
+            *ngIf="
+              currentView === 'products' &&
+              filters.categoryId &&
+              Number(filters.categoryId) > 0
+            "
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+          >
+            <i class="fas fa-tag mr-1"></i>
+            {{ getCategoryName(Number(filters.categoryId)) }}
+          </span>
+          <span
+            *ngIf="
+              currentView === 'products' &&
+              (Number(filters.minPrice) > 0 ||
+                (filters.maxPrice && Number(filters.maxPrice) > 0))
+            "
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+          >
+            <i class="fas fa-dollar-sign mr-1"></i>
+            ${{ Number(filters.minPrice) || 0
+            }}{{
+              filters.maxPrice && Number(filters.maxPrice) > 0
+                ? " - $" + Number(filters.maxPrice)
+                : "+"
+            }}
+          </span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button
+            (click)="resetFilters()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+          >
+            <i class="fas fa-undo mr-2"></i>
+            Reset Filters
+          </button>
+
+          <button
+            *ngIf="currentView === 'products'"
+            (click)="openProductModal()"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            Add Product
+          </button>
+
+          <button
+            *ngIf="currentView === 'categories'"
+            (click)="openCategoryModal()"
+            class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 font-medium"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            Add Category
+          </button>
+
+          <button
+            *ngIf="currentView === 'ingredients'"
+            (click)="openIngredientModal()"
+            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-medium"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            Add Ingredient
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="relative">
+          <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+          <input
+            type="text"
+            [(ngModel)]="filters.searchTerm"
+            (ngModelChange)="applyFilters()"
+            placeholder="Search..."
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+
+        <div *ngIf="currentView === 'products'">
+          <select
+            [(ngModel)]="filters.categoryId"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="0">All Categories</option>
+            <option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <div *ngIf="currentView === 'products'" class="flex space-x-2">
+          <input
+            type="number"
+            [(ngModel)]="filters.minPrice"
+            (ngModelChange)="applyFilters()"
+            placeholder="Min ($0)"
+            min="0"
+            step="0.01"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          />
+          <input
+            type="number"
+            [(ngModel)]="filters.maxPrice"
+            (ngModelChange)="applyFilters()"
+            placeholder="Max (no limit)"
+            min="0"
+            step="0.01"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+
+        <div class="flex space-x-2">
+          <select
+            [(ngModel)]="filters.sortBy"
+            (ngModelChange)="applyFilters()"
+            class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="name">Name</option>
+            <option *ngIf="currentView === 'products'" value="price">
+              Price
+            </option>
+            <option *ngIf="currentView === 'products'" value="category">
+              Category
+            </option>
+          </select>
+          <button
+            (click)="
+              filters.sortOrder = filters.sortOrder === 'asc' ? 'desc' : 'asc';
+              applyFilters()
+            "
+            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            [title]="
+              filters.sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'
+            "
+          >
+            <i
+              [class]="
+                'fas ' +
+                (filters.sortOrder === 'asc'
+                  ? 'fa-sort-alpha-down'
+                  : 'fa-sort-alpha-up')
+              "
+            ></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+    >
+      <div *ngIf="currentView === 'products'" class="p-6">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          <div
+            *ngFor="let product of paginatedProducts"
+            class="group bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md transition-all duration-200 overflow-hidden"
+          >
+            <div
+              class="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center overflow-hidden"
+            >
+              <img
+                *ngIf="product.imageUrl"
+                [src]="getFullImageUrl(product.imageUrl)"
+                alt="{{ product.name }}"
+                class="w-full h-full object-cover"
+              />
+              <div
+                *ngIf="!product.imageUrl"
+                class="text-center text-gray-400 dark:text-gray-500"
+              >
+                <i class="fas fa-image text-3xl mb-2"></i>
+                <p class="text-xs font-medium">No Image</p>
+              </div>
+
+              <div
+                class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              >
+                <div class="flex space-x-3">
+                  <button
+                    (click)="openProductModal(product)"
+                    class="p-3 bg-white dark:bg-gray-800 text-blue-600 hover:text-blue-700 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
+                    title="Edit product"
+                  >
+                    <i class="fas fa-edit text-lg"></i>
+                  </button>
+                  <button
+                    (click)="
+                      confirmDelete('product', product.id!, product.name)
+                    "
+                    class="p-3 bg-white dark:bg-gray-800 text-red-600 hover:text-red-700 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
+                    title="Delete product"
+                  >
+                    <i class="fas fa-trash text-lg"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1 min-w-0">
+                  <h3
+                    class="font-semibold text-gray-900 dark:text-white text-lg truncate"
+                    [title]="product.name"
+                  >
+                    {{ product.name }}
+                  </h3>
+                  <div class="flex items-center mt-1">
+                    <span
+                      class="text-2xl font-bold text-green-600 dark:text-green-400"
+                    >
+                      ${{ product.price.toFixed(2) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <p
+                class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2"
+                [title]="product.description"
+              >
+                {{ product.description || "No description available" }}
+              </p>
+
+              <div class="flex items-center justify-between mb-3">
+                <span
+                  class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                >
+                  <i class="fas fa-tag mr-1"></i>
+                  {{ getCategoryName(product.categoryId) }}
+                </span>
+              </div>
+
+              <div class="border-t border-gray-200 dark:border-gray-600 pt-3">
+                <div class="flex items-center mb-2">
+                  <i class="fas fa-leaf text-green-500 mr-2"></i>
+                  <span
+                    class="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide"
+                    >Ingredients</span
+                  >
+                </div>
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    *ngFor="
+                      let ingredientId of product.ingredientIds.slice(0, 3)
+                    "
+                    class="inline-block px-2 py-1 bg-gray-100 dark:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 rounded"
+                  >
+                    {{ getIngredientName(ingredientId) }}
+                  </span>
+                  <span
+                    *ngIf="product.ingredientIds.length > 3"
+                    class="inline-block px-2 py-1 bg-gray-100 dark:bg-gray-600 text-xs text-gray-500 dark:text-gray-400 rounded"
+                    [title]="getIngredientNames(product.ingredientIds)"
+                  >
+                    +{{ product.ingredientIds.length - 3 }} more
+                  </span>
+                </div>
+                <div
+                  *ngIf="product.ingredientIds.length === 0"
+                  class="text-xs text-gray-500 dark:text-gray-400 italic"
+                >
+                  No ingredients specified
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="paginatedProducts.length === 0" class="text-center py-16">
+          <div class="text-gray-400 dark:text-gray-500">
+            <i class="fas fa-utensils text-5xl mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">
+              {{
+                filteredProducts.length === 0
+                  ? "No products found"
+                  : "No products on this page"
+              }}
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+              {{
+                filteredProducts.length === 0
+                  ? "Try adjusting your filters or add your first product."
+                  : "Navigate to a different page to see more products."
+              }}
+            </p>
+            <button
+              *ngIf="filteredProducts.length === 0"
+              (click)="openProductModal()"
+              class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"
+            >
+              <i class="fas fa-plus mr-2"></i>
+              Add Your First Product
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentView === 'categories'" class="p-6">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+        >
+          <div
+            *ngFor="let category of paginatedCategories"
+            class="group bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 border border-gray-200 dark:border-gray-600"
+          >
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1 min-w-0">
+                <h3
+                  class="font-semibold text-gray-900 dark:text-white truncate"
+                >
+                  {{ category.name }}
+                </h3>
+                <p
+                  class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2"
+                >
+                  {{ category.description || "No description" }}
+                </p>
+              </div>
+              <div
+                class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2"
+              >
+                <button
+                  (click)="openCategoryModal(category)"
+                  class="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900 rounded"
+                  title="Edit category"
+                >
+                  <i class="fas fa-edit text-sm"></i>
+                </button>
+                <button
+                  (click)="
+                    confirmDelete('category', category.id!, category.name)
+                  "
+                  class="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-900 rounded"
+                  title="Delete category"
+                >
+                  <i class="fas fa-trash text-sm"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="paginatedCategories.length === 0" class="text-center py-16">
+          <div class="text-gray-400 dark:text-gray-500">
+            <i class="fas fa-folder-open text-5xl mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">
+              {{
+                filteredCategories.length === 0
+                  ? "No categories found"
+                  : "No categories on this page"
+              }}
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+              {{
+                filteredCategories.length === 0
+                  ? "Try adjusting your search or create your first category."
+                  : "Navigate to a different page to see more categories."
+              }}
+            </p>
+            <button
+              *ngIf="filteredCategories.length === 0"
+              (click)="openCategoryModal()"
+              class="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 font-medium"
+            >
+              <i class="fas fa-plus mr-2"></i>
+              Add Your First Category
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentView === 'ingredients'" class="p-6">
+        <div class="flex flex-wrap gap-2">
+          <div
+            *ngFor="let ingredient of paginatedIngredients"
+            class="group inline-flex items-center bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full px-3 py-2 transition-colors duration-200 border border-gray-200 dark:border-gray-600"
+          >
+            <span
+              class="text-sm font-medium text-gray-900 dark:text-white mr-2"
+              >{{ ingredient.name }}</span
+            >
+            <div
+              class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            >
+              <button
+                (click)="openIngredientModal(ingredient)"
+                class="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-full"
+                title="Edit ingredient"
+              >
+                <i class="fas fa-edit text-xs"></i>
+              </button>
+              <button
+                (click)="
+                  confirmDelete('ingredient', ingredient.id!, ingredient.name)
+                "
+                class="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 rounded-full"
+                title="Delete ingredient"
+              >
+                <i class="fas fa-trash text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          *ngIf="paginatedIngredients.length === 0"
+          class="text-center py-16"
+        >
+          <div class="text-gray-400 dark:text-gray-500">
+            <i class="fas fa-leaf text-5xl mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">
+              {{
+                filteredIngredients.length === 0
+                  ? "No ingredients found"
+                  : "No ingredients on this page"
+              }}
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+              {{
+                filteredIngredients.length === 0
+                  ? "Try adjusting your search or add your first ingredient."
+                  : "Navigate to a different page to see more ingredients."
+              }}
+            </p>
+            <button
+              *ngIf="filteredIngredients.length === 0"
+              (click)="openIngredientModal()"
+              class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-medium"
+            >
+              <i class="fas fa-plus mr-2"></i>
+              Add Your First Ingredient
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="getCurrentPagination().totalPages > 1"
+        class="border-t border-gray-200 dark:border-gray-700 px-6 py-4"
+      >
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+          <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-700 dark:text-gray-300">Show:</span>
+            <select
+              [ngModel]="getCurrentPagination().itemsPerPage"
+              (ngModelChange)="changeItemsPerPage($event, currentView)"
+              class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
+            >
+              <option
+                *ngFor="let option of itemsPerPageOptions"
+                [value]="option"
+              >
+                {{ option }}
+              </option>
+            </select>
+            <span class="text-sm text-gray-700 dark:text-gray-300"
+              >per page</span
+            >
+          </div>
+
+          <div class="text-sm text-gray-700 dark:text-gray-300">
+            Showing
+            {{
+              (getCurrentPagination().currentPage - 1) *
+                getCurrentPagination().itemsPerPage +
+                1
+            }}
+            to
+            {{
+              Math.min(
+                getCurrentPagination().currentPage *
+                  getCurrentPagination().itemsPerPage,
+                getCurrentPagination().totalItems
+              )
+            }}
+            of {{ getCurrentPagination().totalItems }} results
+          </div>
+
+          <div class="flex items-center space-x-1">
+            <button
+              (click)="
+                goToPage(getCurrentPagination().currentPage - 1, currentView)
+              "
+              [disabled]="getCurrentPagination().currentPage === 1"
+              class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <button
+              *ngFor="let page of getPageNumbers(getCurrentPagination())"
+              (click)="goToPage(page, currentView)"
+              [class]="
+                'px-3 py-2 text-sm font-medium border-t border-b border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 ' +
+                (page === getCurrentPagination().currentPage
+                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-500 dark:border-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800')
+              "
+            >
+              {{ page }}
+            </button>
+
+            <button
+              (click)="
+                goToPage(getCurrentPagination().currentPage + 1, currentView)
+              "
+              [disabled]="
+                getCurrentPagination().currentPage ===
+                getCurrentPagination().totalPages
+              "
+              class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="showDeleteConfirmModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700"
+  >
+    <div class="p-6">
+      <div class="flex items-center mb-4">
+        <div
+          class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900"
+        >
+          <i
+            class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"
+          ></i>
+        </div>
+      </div>
+      <div class="text-center">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          Confirm Delete
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+          Are you sure you want to delete "{{ deleteItem?.name }}"? This action
+          cannot be undone.
+        </p>
+      </div>
+      <div
+        class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3"
+      >
+        <button
+          (click)="cancelDelete()"
+          class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="executeDelete()"
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="showProductModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl mx-4 border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700"
+    >
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        {{ getModalTitle("product") }}
+      </h3>
+      <button
+        (click)="closeProductModal()"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <form (ngSubmit)="saveProduct()" #productForm="ngForm">
+        <div class="space-y-6">
+          <div class="w-full">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+              >Product Image</label
+            >
+            <div
+              class="flex flex-col sm:flex-row gap-4 items-center justify-center mb-4"
+            >
+              <div
+                class="flex-shrink-0 w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden border border-gray-300 dark:border-gray-600"
+              >
+                <img
+                  *ngIf="currentProductImageUrl"
+                  [src]="
+                    currentProductImageUrl.startsWith('data:')
+                      ? currentProductImageUrl
+                      : getFullImageUrl(currentProductImageUrl)
+                  "
+                  alt="Product Preview"
+                  class="w-full h-full object-cover"
+                />
+                <i
+                  *ngIf="!currentProductImageUrl"
+                  class="fas fa-image text-4xl text-gray-400 dark:text-gray-500"
+                ></i>
+              </div>
+
+              <div class="flex flex-col gap-2 w-full sm:w-auto">
+                <input
+                  type="file"
+                  #fileInput
+                  (change)="onFileSelected($event)"
+                  accept="image/png, image/jpeg, image/gif"
+                  class="hidden"
+                />
+                <button
+                  type="button"
+                  (click)="fileInput.click()"
+                  class="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium text-sm flex items-center justify-center"
+                >
+                  <i class="fas fa-upload mr-2"></i>
+                  {{ currentProductImageUrl ? "Change Image" : "Upload Image" }}
+                </button>
+                <button
+                  type="button"
+                  *ngIf="currentProductImageUrl && editingProductId"
+                  (click)="deleteImageForProduct(editingProductId)"
+                  class="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 font-medium text-sm flex items-center justify-center"
+                >
+                  <i class="fas fa-trash-alt mr-2"></i>
+                  Delete Image
+                </button>
+              </div>
+            </div>
+            <p
+              class="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left"
+            >
+              PNG, JPG, GIF up to 10MB
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="w-full">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Product Name *</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="newProduct.name"
+                name="productName"
+                required
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                placeholder="Enter product name"
+              />
+            </div>
+            <div class="w-full">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Price *</label
+              >
+              <div class="relative">
+                <span
+                  class="absolute left-4 top-3 text-gray-500 dark:text-gray-400 font-medium"
+                  >$</span
+                >
+                <input
+                  type="number"
+                  [(ngModel)]="newProduct.price"
+                  name="price"
+                  required
+                  min="0"
+                  step="0.01"
+                  class="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Category *</label
+            >
+            <select
+              [(ngModel)]="newProduct.categoryId"
+              name="categoryId"
+              required
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            >
+              <option value="0">Select a category</option>
+              <option *ngFor="let category of categories" [value]="category.id">
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="w-full">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Description</label
+            >
+            <textarea
+              [(ngModel)]="newProduct.description"
+              name="description"
+              rows="4"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="Enter product description"
+            ></textarea>
+          </div>
+
+          <div class="w-full">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+              >Ingredients</label
+            >
+            <div
+              class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 max-h-48 overflow-y-auto"
+            >
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  *ngFor="let ingredient of ingredients"
+                  class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                >
+                  <input
+                    type="checkbox"
+                    [checked]="isIngredientSelected(ingredient.id!)"
+                    (change)="toggleIngredient(ingredient.id!)"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">{{
+                    ingredient.name
+                  }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-600"
+        >
+          <button
+            type="button"
+            (click)="closeProductModal()"
+            class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!productForm.form.valid"
+            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200 font-medium"
+          >
+            <i class="fas fa-save mr-2"></i>
+            {{ getSaveButtonText("product") }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="showCategoryModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700"
+    >
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        {{ getModalTitle("category") }}
+      </h3>
+      <button
+        (click)="closeCategoryModal()"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <form (ngSubmit)="saveCategory()" #categoryForm="ngForm">
+        <div class="space-y-6">
+          <div class="w-full">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Category Name *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="newCategory.name"
+              name="categoryName"
+              required
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="Enter category name"
+            />
+          </div>
+
+          <div class="w-full">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Description</label
+            >
+            <textarea
+              [(ngModel)]="newCategory.description"
+              name="categoryDescription"
+              rows="4"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="Enter category description"
+            ></textarea>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-600"
+        >
+          <button
+            type="button"
+            (click)="closeCategoryModal()"
+            class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!categoryForm.form.valid"
+            class="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200 font-medium"
+          >
+            <i class="fas fa-save mr-2"></i>
+            {{ getSaveButtonText("category") }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="showIngredientModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700"
+    >
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        {{ getModalTitle("ingredient") }}
+      </h3>
+      <button
+        (click)="closeIngredientModal()"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <form (ngSubmit)="saveIngredient()" #ingredientForm="ngForm">
+        <div class="w-full">
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Ingredient Name *</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="newIngredient.name"
+            name="ingredientName"
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Enter ingredient name"
+          />
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-600"
+        >
+          <button
+            type="button"
+            (click)="closeIngredientModal()"
+            class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!ingredientForm.form.valid"
+            class="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200 font-medium"
+          >
+            <i class="fas fa-save mr-2"></i>
+            {{ getSaveButtonText("ingredient") }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

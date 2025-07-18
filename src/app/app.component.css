@@ -1,0 +1,23 @@
+/* Updated app component styles with dark mode support */
+.sidebar-item-active {
+  @apply bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-r-2 border-blue-700;
+}
+
+.sidebar-item {
+  @apply text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700;
+}
+
+.notifications-dropdown {
+  @apply absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50;
+}
+
+.notification-item {
+  @apply p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600;
+}
+
+/* Dark mode utilities */
+@media (prefers-color-scheme: dark) {
+  .dark {
+    color-scheme: dark;
+  }
+}

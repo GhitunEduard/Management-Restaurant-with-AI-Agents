@@ -1,0 +1,177 @@
+/* Profile settings specific styles */
+.profile-container {
+  @apply p-6;
+}
+
+.profile-card {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-md;
+}
+
+.profile-avatar {
+  @apply h-24 w-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-600;
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border rounded-lg transition-colors duration-200;
+}
+
+.form-input:focus {
+  @apply ring-2 ring-blue-500 border-transparent;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input:read-only {
+  @apply bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed;
+}
+
+.edit-button {
+  @apply px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200;
+}
+
+.edit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.save-button {
+  @apply px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200;
+}
+
+.cancel-button {
+  @apply px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200;
+}
+
+.upload-button {
+  @apply px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200;
+}
+
+.file-input-label {
+  @apply w-full flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 cursor-pointer;
+}
+
+.file-input-label:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Role badge styles */
+.role-badge-admin {
+  @apply bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200;
+}
+
+.role-badge-employee {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+}
+
+/* Progress bar styles */
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-fill {
+  @apply bg-blue-600 h-2 rounded-full transition-all duration-300;
+}
+
+/* Loading states */
+.loading-spinner {
+  @apply animate-spin;
+}
+
+.loading-overlay {
+  @apply absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full;
+}
+
+/* Image preview styles */
+.image-preview {
+  @apply h-16 w-16 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600;
+}
+
+/* Notification animations */
+.notification-enter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.notification-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.notification-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification-exit-active {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+}
+
+/* Form validation styles */
+.form-input.invalid {
+  @apply border-red-300 focus:ring-red-500;
+}
+
+.form-input.valid {
+  @apply border-green-300 focus:ring-green-500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-container {
+    @apply p-4;
+  }
+
+  .profile-card {
+    @apply p-4;
+  }
+
+  .profile-avatar {
+    @apply h-20 w-20;
+  }
+}
+
+/* Dark mode specific adjustments */
+@media (prefers-color-scheme: dark) {
+  .profile-card {
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+}
+
+/* Focus styles for accessibility */
+.edit-button:focus,
+.save-button:focus,
+.cancel-button:focus,
+.upload-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Hover effects */
+.interactive-element {
+  transition: all 0.2s ease;
+}
+
+.interactive-element:hover {
+  transform: translateY(-1px);
+}
+
+/* Error state styles */
+.error-state {
+  @apply text-center py-12;
+}
+
+.error-icon {
+  @apply text-4xl text-red-500 mb-4;
+}
+
+.retry-button {
+  @apply px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200;
+}

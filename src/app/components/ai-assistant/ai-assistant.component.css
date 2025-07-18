@@ -1,0 +1,81 @@
+/* AI Assistant specific styles */
+.chat-window {
+  @apply fixed bottom-6 right-6 z-50 bg-white rounded-lg shadow-xl border border-gray-200 transition-all duration-200;
+}
+
+.dark .chat-window {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.chat-button {
+  @apply bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-200;
+}
+
+.chat-button:hover {
+  transform: scale(1.1);
+}
+
+.chat-header {
+  @apply flex items-center justify-between p-4 border-b border-gray-200 bg-blue-600 text-white rounded-t-lg;
+}
+
+.dark .chat-header {
+  @apply border-gray-700;
+}
+
+.message-user {
+  @apply bg-blue-600 text-white max-w-xs px-3 py-2 rounded-lg text-sm;
+}
+
+.message-assistant {
+  @apply bg-gray-100 text-gray-900 max-w-xs px-3 py-2 rounded-lg text-sm;
+}
+
+.dark .message-assistant {
+  @apply bg-gray-700 text-white;
+}
+
+.quick-action-button {
+  @apply text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded transition-colors duration-200;
+}
+
+.dark .quick-action-button {
+  @apply bg-gray-700 hover:bg-gray-600 text-gray-300;
+}
+
+.typing-indicator {
+  @apply flex space-x-1;
+}
+
+.typing-dot {
+  @apply w-2 h-2 bg-gray-400 rounded-full animate-bounce;
+}
+
+/* Animation delays for typing dots */
+.typing-dot:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .chat-window {
+    @apply w-80 h-80 bottom-4 right-4;
+  }
+
+  .chat-button {
+    @apply w-12 h-12 bottom-4 right-4;
+  }
+}
+
+/* Smooth transitions */
+.chat-minimize {
+  transition: height 0.3s ease-in-out;
+}
+
+.chat-maximize {
+  transition: height 0.3s ease-in-out;
+}

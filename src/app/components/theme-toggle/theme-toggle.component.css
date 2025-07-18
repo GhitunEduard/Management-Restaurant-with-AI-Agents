@@ -1,0 +1,12 @@
+/* Theme toggle specific styles */
+.theme-toggle {
+  @apply p-2 rounded-lg border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200;
+}
+
+.theme-icon-light {
+  @apply text-gray-600 dark:text-gray-300;
+}
+
+.theme-icon-dark {
+  @apply text-yellow-500;
+}

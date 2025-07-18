@@ -1,0 +1,330 @@
+<div class="p-6">
+  <!-- Notifications -->
+  <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+    <div
+      *ngFor="let notification of notifications"
+      [class]="
+        'px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform transition-all duration-300 ' +
+        (notification.type === 'success'
+          ? 'bg-green-500 text-white'
+          : notification.type === 'error'
+          ? 'bg-red-500 text-white'
+          : notification.type === 'warning'
+          ? 'bg-yellow-500 text-white'
+          : 'bg-blue-500 text-white')
+      "
+    >
+      <i
+        [class]="
+          'fas ' +
+          (notification.type === 'success'
+            ? 'fa-check-circle'
+            : notification.type === 'error'
+            ? 'fa-times-circle'
+            : notification.type === 'warning'
+            ? 'fa-exclamation-triangle'
+            : 'fa-info-circle')
+        "
+      ></i>
+      <span class="text-sm">{{ notification.message }}</span>
+      <button
+        (click)="removeNotification(notification.id)"
+        class="ml-2 hover:opacity-75 flex-shrink-0"
+      >
+        <i class="fas fa-times text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+      Profile Settings
+    </h1>
+    <p class="text-gray-600 dark:text-gray-400 mt-2">
+      Manage your account settings and preferences
+    </p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+    <div class="text-center">
+      <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+      <p class="text-gray-600 dark:text-gray-400">
+        Loading profile information...
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div
+    *ngIf="!isLoading && currentUser"
+    class="grid grid-cols-1 lg:grid-cols-4 gap-6"
+  >
+    <!-- Profile Overview Card -->
+    <div class="lg:col-span-1">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <!-- Profile Image -->
+        <div class="text-center mb-6">
+          <div class="relative inline-block">
+            <img
+              [src]="imagePreview || getProfileImageUrl()"
+              alt="Profile picture"
+              class="h-24 w-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-600 mx-auto"
+            />
+            <div
+              *ngIf="isUploading"
+              class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full"
+            >
+              <div class="text-white text-xs">{{ uploadProgress }}%</div>
+            </div>
+          </div>
+          <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+            {{ currentUser.name }}
+          </h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            {{ currentUser.email }}
+          </p>
+          <span
+            [class]="
+              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ' +
+              (currentUser.role === 'ADMIN'
+                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200')
+            "
+          >
+            {{ currentUser.role }}
+          </span>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="space-y-2">
+          <button
+            (click)="toggleEditMode()"
+            [disabled]="isSaving"
+            class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200"
+          >
+            <i
+              [class]="isEditing ? 'fas fa-times' : 'fas fa-edit'"
+              class="mr-2"
+            ></i>
+            {{ isEditing ? "Cancel Edit" : "Edit Profile" }}
+          </button>
+
+          <label
+            class="w-full flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 cursor-pointer"
+          >
+            <i class="fas fa-camera mr-2"></i>
+            Change Photo
+            <input
+              type="file"
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              class="hidden"
+              [disabled]="isUploading"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="lg:col-span-3">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Profile Information
+          </h2>
+          <div *ngIf="isSaving" class="flex items-center text-blue-600">
+            <i class="fas fa-spinner fa-spin mr-2"></i>
+            <span class="text-sm">Saving...</span>
+          </div>
+        </div>
+
+        <form (ngSubmit)="saveProfile()" #profileForm="ngForm">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Name Field -->
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Full Name *
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="editableUser.name"
+                name="name"
+                required
+                [readonly]="!isEditing"
+                [class]="
+                  'w-full px-3 py-2 border rounded-lg transition-colors duration-200 ' +
+                  (isEditing
+                    ? 'border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white'
+                    : 'border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-600 dark:text-gray-400')
+                "
+                placeholder="Enter your full name"
+              />
+            </div>
+
+            <!-- Email Field (Read-only) -->
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Email Address
+              </label>
+              <input
+                type="email"
+                [value]="currentUser.email"
+                readonly
+                class="w-full px-3 py-2 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg"
+              />
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Email cannot be changed
+              </p>
+            </div>
+
+            <!-- Phone Field -->
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Phone Number *
+              </label>
+              <input
+                type="tel"
+                [(ngModel)]="editableUser.phone"
+                name="phone"
+                required
+                [readonly]="!isEditing"
+                [class]="
+                  'w-full px-3 py-2 border rounded-lg transition-colors duration-200 ' +
+                  (isEditing
+                    ? 'border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white'
+                    : 'border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-600 dark:text-gray-400')
+                "
+                placeholder="Enter your phone number"
+              />
+            </div>
+
+            <!-- Role Field -->
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Role
+              </label>
+              <select
+                [(ngModel)]="editableUser.role"
+                name="role"
+                [disabled]="!isEditing || !canEditRole()"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+              >
+                <option value="ADMIN">Administrator</option>
+                <option value="EMPLOYEE">Employee</option>
+              </select>
+              <p
+                *ngIf="!canEditRole()"
+                class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+              >
+                Only administrators can change roles
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div
+            *ngIf="isEditing"
+            class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-600"
+          >
+            <button
+              type="button"
+              (click)="toggleEditMode()"
+              [disabled]="isSaving"
+              class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="isSaving || !isFormValid()"
+              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200 flex items-center"
+            >
+              <i *ngIf="isSaving" class="fas fa-spinner fa-spin mr-2"></i>
+              {{ isSaving ? "Saving..." : "Save Changes" }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Image Upload Section -->
+      <div
+        *ngIf="selectedFile"
+        class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+      >
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Upload New Profile Picture
+        </h3>
+
+        <div class="flex items-center space-x-4">
+          <img
+            [src]="imagePreview"
+            alt="Preview"
+            class="h-16 w-16 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+          />
+
+          <div class="flex-1">
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              {{ selectedFile.name }}
+            </p>
+            <div
+              *ngIf="isUploading"
+              class="w-full bg-gray-200 rounded-full h-2"
+            >
+              <div
+                class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                [style.width.%]="uploadProgress"
+              ></div>
+            </div>
+          </div>
+
+          <div class="flex space-x-2">
+            <button
+              (click)="uploadImage()"
+              [disabled]="isUploading"
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200"
+            >
+              <i class="fas fa-upload mr-2"></i>
+              Upload
+            </button>
+            <button
+              (click)="cancelImageSelection()"
+              [disabled]="isUploading"
+              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !currentUser" class="text-center py-12">
+    <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+      Failed to Load Profile
+    </h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-4">
+      There was an error loading your profile information.
+    </p>
+    <button
+      (click)="loadUserProfile()"
+      class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+    >
+      <i class="fas fa-redo mr-2"></i>
+      Try Again
+    </button>
+  </div>
+</div>

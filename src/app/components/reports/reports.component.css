@@ -1,0 +1,158 @@
+/* Reports specific styles */
+.reports-container {
+  @apply p-6;
+}
+
+.report-generation-card {
+  @apply bg-white rounded-lg shadow-md p-6;
+}
+
+.dark .report-generation-card {
+  @apply bg-gray-800;
+}
+
+.report-form {
+  @apply space-y-4;
+}
+
+.form-group {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.dark .form-label {
+  @apply text-gray-300;
+}
+
+.form-input {
+  @apply w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.dark .form-input {
+  @apply border-gray-600 bg-gray-700 text-white;
+}
+
+.generate-button {
+  @apply w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200;
+}
+
+.quick-actions {
+  @apply mt-8 pt-6 border-t border-gray-200;
+}
+
+.dark .quick-actions {
+  @apply border-gray-700;
+}
+
+.quick-action-button {
+  @apply w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200;
+}
+
+.dark .quick-action-button {
+  @apply text-gray-300 hover:bg-gray-700;
+}
+
+.reports-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.dark .reports-table {
+  @apply divide-gray-700;
+}
+
+.table-header {
+  @apply bg-gray-50;
+}
+
+.dark .table-header {
+  @apply bg-gray-700;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm;
+}
+
+.status-badge {
+  @apply px-2 inline-flex text-xs leading-5 font-semibold rounded-full;
+}
+
+.status-completed {
+  @apply bg-green-100 text-green-800;
+}
+
+.dark .status-completed {
+  @apply bg-green-900 text-green-200;
+}
+
+.action-button {
+  @apply px-2 py-1 rounded transition-colors duration-200;
+}
+
+.action-pdf {
+  @apply text-blue-600 hover:text-blue-900 hover:bg-blue-50;
+}
+
+.dark .action-pdf {
+  @apply text-blue-400 hover:text-blue-300 hover:bg-blue-900;
+}
+
+.action-csv {
+  @apply text-green-600 hover:text-green-900 hover:bg-green-50;
+}
+
+.dark .action-csv {
+  @apply text-green-400 hover:text-green-300 hover:bg-green-900;
+}
+
+.action-email {
+  @apply text-purple-600 hover:text-purple-900 hover:bg-purple-50;
+}
+
+.dark .action-email {
+  @apply text-purple-400 hover:text-purple-300 hover:bg-purple-900;
+}
+
+.action-delete {
+  @apply text-red-600 hover:text-red-900 hover:bg-red-50;
+}
+
+.dark .action-delete {
+  @apply text-red-400 hover:text-red-300 hover:bg-red-900;
+}
+
+.report-preview {
+  @apply h-64 bg-gray-50 rounded-lg flex items-center justify-center;
+}
+
+.dark .report-preview {
+  @apply bg-gray-700;
+}
+
+/* Loading states */
+.generating {
+  @apply opacity-75 pointer-events-none;
+}
+
+.spinner {
+  @apply animate-spin;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .reports-grid {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 640px) {
+  .reports-container {
+    @apply p-4;
+  }
+
+  .table-cell {
+    @apply px-3 py-2;
+  }
+}

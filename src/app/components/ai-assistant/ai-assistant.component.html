@@ -1,0 +1,128 @@
+<!-- Floating Chat Button -->
+<div *ngIf="!isOpen" class="fixed bottom-6 right-6 z-50">
+  <button
+    (click)="toggleChat()"
+    class="bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+  >
+    <i class="fas fa-robot text-xl"></i>
+  </button>
+</div>
+
+<!-- Chat Window -->
+<div
+  *ngIf="isOpen"
+  [class]="
+    'fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-200 ' +
+    (isMinimized ? 'w-80 h-16' : 'w-96 h-96')
+  "
+>
+  <!-- Chat Header -->
+  <div
+    class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-blue-600 text-white rounded-t-lg"
+  >
+    <div class="flex items-center space-x-2">
+      <i class="fas fa-robot"></i>
+      <span class="font-medium">AI Assistant</span>
+      <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+    </div>
+    <div class="flex space-x-2">
+      <button
+        *ngIf="!isMinimized"
+        (click)="minimizeChat()"
+        class="text-white hover:text-gray-200 transition-colors duration-200"
+      >
+        <i class="fas fa-minus text-sm"></i>
+      </button>
+      <button
+        *ngIf="isMinimized"
+        (click)="maximizeChat()"
+        class="text-white hover:text-gray-200 transition-colors duration-200"
+      >
+        <i class="fas fa-expand text-sm"></i>
+      </button>
+      <button
+        (click)="closeChat()"
+        class="text-white hover:text-gray-200 transition-colors duration-200"
+      >
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Content -->
+  <div *ngIf="!isMinimized" class="flex flex-col h-80">
+    <!-- Messages Area -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <div
+        *ngFor="let message of messages"
+        [class]="
+          'flex ' + (message.type === 'user' ? 'justify-end' : 'justify-start')
+        "
+      >
+        <div
+          [class]="
+            'max-w-xs px-3 py-2 rounded-lg text-sm ' +
+            (message.type === 'user'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white')
+          "
+        >
+          {{ message.content }}
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div *ngIf="isTyping" class="flex justify-start">
+        <div
+          class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white max-w-xs px-3 py-2 rounded-lg text-sm"
+        >
+          <div class="flex space-x-1">
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+            <div
+              class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style="animation-delay: 0.1s"
+            ></div>
+            <div
+              class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style="animation-delay: 0.2s"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex flex-wrap gap-1 mb-2">
+        <button
+          *ngFor="let action of quickActions.slice(0, 3)"
+          (click)="sendQuickAction(action.text)"
+          class="text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded transition-colors duration-200"
+        >
+          <i [class]="action.icon + ' mr-1'"></i>
+          {{ action.text }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex space-x-2">
+        <input
+          type="text"
+          [(ngModel)]="currentMessage"
+          (keypress)="onKeyPress($event)"
+          placeholder="Type your message..."
+          class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+        />
+        <button
+          (click)="sendMessage()"
+          [disabled]="!currentMessage.trim()"
+          class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-2 rounded-lg transition-colors duration-200"
+        >
+          <i class="fas fa-paper-plane text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

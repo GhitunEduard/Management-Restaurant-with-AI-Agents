@@ -1,0 +1,310 @@
+<div class="w-full min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+    <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+      <div
+        *ngFor="let notification of notifications"
+        [class]="
+          'px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform transition-all duration-300 ' +
+          (notification.type === 'success'
+            ? 'bg-green-500 text-white'
+            : notification.type === 'error'
+            ? 'bg-red-500 text-white'
+            : notification.type === 'warning'
+            ? 'bg-yellow-500 text-white'
+            : 'bg-blue-500 text-white')
+        "
+      >
+        <i
+          [class]="
+            'fas ' +
+            (notification.type === 'success'
+              ? 'fa-check-circle'
+              : notification.type === 'error'
+              ? 'fa-times-circle'
+              : notification.type === 'warning'
+              ? 'fa-exclamation-triangle'
+              : 'fa-info-circle')
+          "
+        ></i>
+        <span class="text-sm">{{ notification.message }}</span>
+        <button
+          (click)="removeNotification(notification.id)"
+          class="ml-2 hover:opacity-75 flex-shrink-0"
+        >
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="w-full mb-6 lg:mb-8">
+      <div
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
+      >
+        <div>
+          <h1
+            class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"
+          >
+            Contact Information Management
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-2">
+            Manage the public contact details displayed on the client
+            application.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="isLoading"
+      class="flex items-center justify-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-md"
+    >
+      <div class="text-center">
+        <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+        <p class="text-gray-600 dark:text-gray-400">
+          Loading contact information...
+        </p>
+      </div>
+    </div>
+
+    <div
+      *ngIf="!isLoading"
+      class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 mb-6"
+    >
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+        Edit Contact Details
+      </h3>
+
+      <form [formGroup]="contactForm" (ngSubmit)="saveContactInfo()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              for="address"
+              >Address <span class="text-red-500">*</span></label
+            >
+            <textarea
+              id="address"
+              formControlName="address"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., Str. Exemplu, Nr. 123, Oraș, Țară"
+            ></textarea>
+            <div
+              *ngIf="
+                contactForm.get('address')?.invalid &&
+                contactForm.get('address')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              <span *ngIf="contactForm.get('address')?.errors?.['required']"
+                >Address is required.</span
+              >
+              <span *ngIf="contactForm.get('address')?.errors?.['minlength']"
+                >Address must be at least 10 characters.</span
+              >
+              <span *ngIf="contactForm.get('address')?.errors?.['maxlength']"
+                >Address cannot exceed 255 characters.</span
+              >
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              for="phone"
+              >Phone Number <span class="text-red-500">*</span></label
+            >
+            <input
+              id="phone"
+              type="tel"
+              formControlName="phone"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., +40 712 345 678"
+            />
+            <div
+              *ngIf="
+                contactForm.get('phone')?.invalid &&
+                contactForm.get('phone')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              <span *ngIf="contactForm.get('phone')?.errors?.['required']"
+                >Phone number is required.</span
+              >
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              for="email"
+              >Email <span class="text-red-500">*</span></label
+            >
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., contact@restaurant.com"
+            />
+            <div
+              *ngIf="
+                contactForm.get('email')?.invalid &&
+                contactForm.get('email')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              <span *ngIf="contactForm.get('email')?.errors?.['required']"
+                >Email is required.</span
+              >
+              <span *ngIf="contactForm.get('email')?.errors?.['email']"
+                >Please enter a valid email address.</span
+              >
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              for="schedule"
+              >Schedule <span class="text-red-500">*</span></label
+            >
+            <textarea
+              id="schedule"
+              formControlName="schedule"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., Mon-Fri: 09:00-18:00, Sat-Sun: 10:00-16:00"
+            ></textarea>
+            <div
+              *ngIf="
+                contactForm.get('schedule')?.invalid &&
+                contactForm.get('schedule')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              <span *ngIf="contactForm.get('schedule')?.errors?.['required']"
+                >Schedule is required.</span
+              >
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              for="facebookUrl"
+              >Facebook URL</label
+            >
+            <input
+              id="facebookUrl"
+              type="url"
+              formControlName="facebookUrl"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., https://facebook.com/yourpage"
+            />
+            <div
+              *ngIf="
+                contactForm.get('facebookUrl')?.invalid &&
+                contactForm.get('facebookUrl')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              <span *ngIf="contactForm.get('facebookUrl')?.errors?.['pattern']"
+                >Please enter a valid URL.</span
+              >
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              for="instagramUrl"
+              >Instagram URL</label
+            >
+            <input
+              id="instagramUrl"
+              type="url"
+              formControlName="instagramUrl"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., https://instagram.com/yourprofile"
+            />
+            <div
+              *ngIf="
+                contactForm.get('instagramUrl')?.invalid &&
+                contactForm.get('instagramUrl')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              <span *ngIf="contactForm.get('instagramUrl')?.errors?.['pattern']"
+                >Please enter a valid URL.</span
+              >
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              for="tripadvisorUrl"
+              >TripAdvisor URL</label
+            >
+            <input
+              id="tripadvisorUrl"
+              type="url"
+              formControlName="tripadvisorUrl"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., https://tripadvisor.com/yourpage"
+            />
+            <div
+              *ngIf="
+                contactForm.get('tripadvisorUrl')?.invalid &&
+                contactForm.get('tripadvisorUrl')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              <span
+                *ngIf="contactForm.get('tripadvisorUrl')?.errors?.['pattern']"
+                >Please enter a valid URL.</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600"
+        >
+          <button
+            type="button"
+            (click)="resetForm()"
+            class="modal-button border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            Reset
+          </button>
+          <button
+            type="submit"
+            [disabled]="contactForm.invalid || isSaving"
+            class="modal-button bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white"
+          >
+            <i *ngIf="isSaving" class="fas fa-spinner fa-spin mr-2"></i>
+            {{ isSaving ? "Saving..." : "Save Changes" }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div
+      *ngIf="!isLoading && !contactInfo && !isSaving"
+      class="text-center py-16"
+    >
+      <div class="text-gray-400 dark:text-gray-500">
+        <i class="fas fa-info-circle text-5xl mb-4"></i>
+        <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">
+          No Contact Information Set
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">
+          There are no contact details currently configured. Please fill out the
+          form above to set them.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

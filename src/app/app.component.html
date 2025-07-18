@@ -1,0 +1,139 @@
+<!--
+  Structura principală a aplicației.
+  Clasa 'flex' este aplicată condiționat doar dacă utilizatorul este autentificat,
+  pentru a aranja corect sidebar-ul și conținutul principal.
+-->
+<div
+  class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200"
+  [class.flex]="isLoggedIn"
+  [class.h-screen]="isLoggedIn"
+>
+  <!--
+    Sidebar-ul este acum singurul element major controlat de `*ngIf="isLoggedIn"`.
+    Acesta va fi randat doar după ce AuthService confirmă că utilizatorul este autentificat.
+  -->
+  <div
+    *ngIf="isLoggedIn"
+    class="w-64 bg-white dark:bg-gray-800 shadow-lg transition-colors duration-200 flex-shrink-0"
+  >
+    <!-- Header-ul sidebar-ului -->
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+      <h1 class="text-xl font-bold text-gray-800 dark:text-white">
+        Restaurant Manager
+      </h1>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+        {{ userRole | titlecase }} Panel
+      </p>
+    </div>
+
+    <!-- Meniul de navigație -->
+    <nav class="mt-6">
+      <div class="px-4 space-y-2">
+        <button
+          *ngFor="let item of filteredNavigationItems"
+          (click)="setCurrentView(item.id)"
+          [class]="
+            'w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ' +
+            (currentView === item.id
+              ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-r-2 border-blue-700'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700')
+          "
+        >
+          <img
+            *ngIf="item.id === 'profile'"
+            [src]="getProfileImageUrl()"
+            alt="Profile"
+            class="w-6 h-6 rounded-full object-cover mr-3"
+          />
+          <i *ngIf="item.id !== 'profile'" [class]="item.icon + ' mr-3'"></i>
+          {{ item.label }}
+        </button>
+      </div>
+    </nav>
+
+    <!-- Secțiunea de jos a sidebar-ului (utilizator și butoane) -->
+    <div
+      class="absolute bottom-0 w-64 p-4 border-t border-gray-200 dark:border-gray-700"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <img
+            [src]="getProfileImageUrl()"
+            alt="User"
+            class="w-8 h-8 rounded-full object-cover"
+          />
+          <div>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">
+              {{ currentUser?.name || "User" }}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ userRole | titlecase }}
+            </p>
+          </div>
+        </div>
+        <button
+          (click)="toggleTheme()"
+          class="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+          title="Toggle Theme"
+        >
+          <i [class]="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+        </button>
+        <button
+          (click)="logout()"
+          class="p-2 rounded-full text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-700 transition-colors duration-200"
+          title="Sign Out"
+        >
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    Container pentru conținutul principal.
+    <router-outlet> este acum responsabil pentru afișarea paginilor (inclusiv Login).
+    Acesta va ocupa tot spațiul disponibil.
+  -->
+  <div class="h-full overflow-y-auto flex-1">
+    <router-outlet></router-outlet>
+  </div>
+
+  <!-- Componentele globale, cum ar fi asistentul AI și notificările, rămân în afara logicii de routing. -->
+  <app-ai-assistant *ngIf="isLoggedIn"></app-ai-assistant>
+
+  <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+    <div
+      *ngFor="let notification of notifications"
+      [class]="
+        'px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform transition-all duration-300 ' +
+        (notification.type === 'success'
+          ? 'bg-green-500 text-white'
+          : notification.type === 'error'
+          ? 'bg-red-500 text-white'
+          : notification.type === 'warning'
+          ? 'bg-yellow-500 text-white'
+          : 'bg-blue-500 text-white')
+      "
+    >
+      <i
+        [class]="
+          'fas ' +
+          (notification.type === 'success'
+            ? 'fa-check-circle'
+            : notification.type === 'error'
+            ? 'fa-times-circle'
+            : notification.type === 'warning'
+            ? 'fa-exclamation-triangle'
+            : 'fa-info-circle')
+        "
+      ></i>
+      <span class="text-sm">{{ notification.message }}</span>
+      <button
+        (click)="removeNotification(notification.id)"
+        class="ml-2 hover:opacity-75 flex-shrink-0"
+      >
+        <i class="fas fa-times text-xs"></i>
+      </button>
+    </div>
+  </div>
+</div>

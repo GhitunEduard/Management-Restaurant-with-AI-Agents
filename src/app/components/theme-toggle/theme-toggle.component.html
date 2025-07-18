@@ -1,0 +1,11 @@
+<button
+  (click)="toggleTheme()"
+  class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+  [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+>
+  <i
+    *ngIf="!isDarkMode"
+    class="fas fa-moon text-gray-600 dark:text-gray-300"
+  ></i>
+  <i *ngIf="isDarkMode" class="fas fa-sun text-yellow-500"></i>
+</button>

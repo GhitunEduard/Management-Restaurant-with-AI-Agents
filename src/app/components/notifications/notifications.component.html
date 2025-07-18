@@ -1,0 +1,153 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Notifications</h1>
+      <p class="text-gray-600 mt-2">
+        Stay updated with system alerts and important events
+        <span
+          *ngIf="unreadCount > 0"
+          class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"
+        >
+          {{ unreadCount }} unread
+        </span>
+      </p>
+    </div>
+    <div class="flex space-x-3">
+      <button
+        (click)="markAllAsRead()"
+        [disabled]="unreadCount === 0"
+        class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
+      >
+        <i class="fas fa-check-double mr-2"></i>
+        Mark All Read
+      </button>
+      <button
+        (click)="clearAll()"
+        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
+      >
+        <i class="fas fa-trash mr-2"></i>
+        Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications List -->
+  <div class="bg-white rounded-lg shadow-md">
+    <div class="divide-y divide-gray-200">
+      <div
+        *ngFor="let notification of notifications"
+        [class]="
+          'p-6 hover:bg-gray-50 transition-colors duration-200 ' +
+          (!notification.read ? 'bg-blue-50' : '')
+        "
+      >
+        <div class="flex items-start space-x-4">
+          <!-- Icon -->
+          <div
+            [class]="
+              'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ' +
+              getTypeClass(notification.type)
+            "
+          >
+            <i [class]="notification.icon"></i>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h3
+                [class]="
+                  'text-sm font-medium ' +
+                  (!notification.read ? 'text-gray-900' : 'text-gray-700')
+                "
+              >
+                {{ notification.title }}
+                <span
+                  *ngIf="!notification.read"
+                  class="ml-2 w-2 h-2 bg-blue-600 rounded-full inline-block"
+                ></span>
+              </h3>
+              <span class="text-xs text-gray-500">{{
+                notification.timestamp
+              }}</span>
+            </div>
+            <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex-shrink-0 flex space-x-2">
+            <button
+              *ngIf="!notification.read"
+              (click)="markAsRead(notification.id)"
+              class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
+              title="Mark as read"
+            >
+              <i class="fas fa-check text-sm"></i>
+            </button>
+            <button
+              (click)="deleteNotification(notification.id)"
+              class="text-red-600 hover:text-red-800 p-1 rounded transition-colors duration-200"
+              title="Delete notification"
+            >
+              <i class="fas fa-times text-sm"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="notifications.length === 0" class="p-12 text-center">
+        <i class="fas fa-bell-slash text-4xl text-gray-400 mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+        <p class="text-gray-600">
+          You're all caught up! New notifications will appear here.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Settings -->
+  <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+      Notification Settings
+    </h2>
+    <div class="space-y-4">
+      <label class="flex items-center">
+        <input
+          type="checkbox"
+          checked
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <span class="ml-3 text-sm text-gray-700"
+          >Email notifications for new reservations</span
+        >
+      </label>
+      <label class="flex items-center">
+        <input
+          type="checkbox"
+          checked
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <span class="ml-3 text-sm text-gray-700">Low stock alerts</span>
+      </label>
+      <label class="flex items-center">
+        <input
+          type="checkbox"
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <span class="ml-3 text-sm text-gray-700">Daily report summaries</span>
+      </label>
+      <label class="flex items-center">
+        <input
+          type="checkbox"
+          checked
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <span class="ml-3 text-sm text-gray-700"
+          >System maintenance alerts</span
+        >
+      </label>
+    </div>
+  </div>
+</div>

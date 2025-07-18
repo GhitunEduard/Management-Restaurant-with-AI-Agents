@@ -1,0 +1,869 @@
+<div class="w-full min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Notifications -->
+    <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+      <div
+        *ngFor="let notification of notifications"
+        [class]="
+          'px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform transition-all duration-300 ' +
+          (notification.type === 'success'
+            ? 'bg-green-500 text-white'
+            : notification.type === 'error'
+            ? 'bg-red-500 text-white'
+            : notification.type === 'warning'
+            ? 'bg-yellow-500 text-white'
+            : 'bg-blue-500 text-white')
+        "
+      >
+        <i
+          [class]="
+            'fas ' +
+            (notification.type === 'success'
+              ? 'fa-check-circle'
+              : notification.type === 'error'
+              ? 'fa-times-circle'
+              : notification.type === 'warning'
+              ? 'fa-exclamation-triangle'
+              : 'fa-info-circle')
+          "
+        ></i>
+        <span class="text-sm">{{ notification.message }}</span>
+        <button
+          (click)="removeNotification(notification.id)"
+          class="ml-2 hover:opacity-75 flex-shrink-0"
+        >
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="w-full mb-6 lg:mb-8">
+      <div
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
+      >
+        <div>
+          <h1
+            class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"
+          >
+            Order Management
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-2">
+            Manage customer orders and track order history
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button
+            (click)="exportOrders()"
+            class="fixed-size-button bg-green-600 hover:bg-green-700 text-white"
+          >
+            <i class="fas fa-download mr-2"></i>
+            <span>Export</span>
+          </button>
+          <button
+            (click)="openOrderModal()"
+            class="fixed-size-button bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            <span>New Order</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Filters Section -->
+    <div
+      class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 mb-6"
+    >
+      <!-- Quick Time Filters -->
+      <div class="mb-6">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4"
+        >
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+            Filter Orders
+          </h3>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+              {{ filteredOrders.length }} of {{ orders.length }} orders
+            </span>
+            <div
+              *ngIf="getActiveFilterCount() > 0"
+              class="flex items-center gap-2 px-2 py-1 bg-blue-100 dark:bg-blue-900 rounded-full"
+            >
+              <span
+                class="text-xs font-medium text-blue-800 dark:text-blue-200"
+              >
+                {{ getActiveFilterCount() }} filter{{
+                  getActiveFilterCount() > 1 ? "s" : ""
+                }}
+              </span>
+              <button
+                (click)="clearAllFilters()"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+              >
+                <i class="fas fa-times text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Time Filter Buttons -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button
+            (click)="setTimeFilter('past')"
+            [class]="
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ' +
+              (timeFilter === 'past'
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600')
+            "
+          >
+            <i class="fas fa-history mr-2"></i>
+            Past Orders
+          </button>
+          <button
+            (click)="setTimeFilter('today')"
+            [class]="
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ' +
+              (timeFilter === 'today'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600')
+            "
+          >
+            <i class="fas fa-calendar-day mr-2"></i>
+            Today's Orders
+          </button>
+          <button
+            (click)="setTimeFilter('future')"
+            [class]="
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ' +
+              (timeFilter === 'future'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600')
+            "
+          >
+            <i class="fas fa-calendar-plus mr-2"></i>
+            Future Orders
+          </button>
+          <button
+            (click)="setTimeFilter('all')"
+            [class]="
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ' +
+              (timeFilter === 'all'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600')
+            "
+          >
+            <i class="fas fa-calendar mr-2"></i>
+            All Orders
+          </button>
+        </div>
+
+        <!-- Active Filters Display -->
+        <div *ngIf="activeFilters.length > 0" class="flex flex-wrap gap-2 mb-4">
+          <span class="text-sm text-gray-500 dark:text-gray-400"
+            >Active filters:</span
+          >
+          <span
+            *ngFor="let filter of activeFilters"
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+          >
+            {{ filter }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Advanced Filters -->
+      <form [formGroup]="filterForm" class="space-y-4">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+        >
+          <!-- Search -->
+          <div class="sm:col-span-2">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              <i class="fas fa-search mr-1"></i>
+              Search Orders
+            </label>
+            <input
+              type="text"
+              formControlName="searchTerm"
+              placeholder="Search by customer name, address, or order ID..."
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+
+          <!-- Custom Date Range (only shown when timeFilter is 'all') -->
+          <div *ngIf="timeFilter === 'all'">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              <i class="fas fa-calendar-alt mr-1"></i>
+              Date From
+            </label>
+            <input
+              type="date"
+              formControlName="dateFrom"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div *ngIf="timeFilter === 'all'">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              <i class="fas fa-calendar-alt mr-1"></i>
+              Date To
+            </label>
+            <input
+              type="date"
+              formControlName="dateTo"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+
+          <!-- Price Range -->
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              <i class="fas fa-dollar-sign mr-1"></i>
+              Min Amount
+            </label>
+            <input
+              type="number"
+              formControlName="minAmount"
+              placeholder="0.00"
+              step="0.01"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              <i class="fas fa-dollar-sign mr-1"></i>
+              Max Amount
+            </label>
+            <input
+              type="number"
+              formControlName="maxAmount"
+              placeholder="No limit"
+              step="0.01"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <!-- Sort Controls -->
+        <div
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-600"
+        >
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-sort text-gray-500 dark:text-gray-400"></i>
+              <select
+                formControlName="sortBy"
+                class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              >
+                <option value="orderDate">Sort by Date</option>
+                <option value="totalAmount">Sort by Amount</option>
+                <option value="customerName">Sort by Customer</option>
+              </select>
+            </div>
+            <select
+              formControlName="sortDirection"
+              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="desc">Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+          </div>
+
+          <!-- Clear All Filters -->
+          <button
+            type="button"
+            (click)="clearAllFilters()"
+            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            <i class="fas fa-times mr-2"></i>
+            Clear All Filters
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Orders Table -->
+    <div
+      class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6"
+    >
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+          Orders ({{ filteredOrders.length }})
+        </h2>
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
+          {{ mathMin(currentPage * itemsPerPage, filteredOrders.length) }}
+          of {{ filteredOrders.length }} orders
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+          <p class="text-gray-600 dark:text-gray-400">Loading orders...</p>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div *ngIf="!isLoading" class="w-full overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th
+                class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Order ID
+              </th>
+              <th
+                class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Customer
+              </th>
+              <th
+                class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Date
+              </th>
+              <th
+                class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Items
+              </th>
+              <th
+                class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Total
+              </th>
+              <th
+                class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody
+            class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+          >
+            <tr
+              *ngFor="let order of paginatedOrders"
+              class="hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <td
+                class="px-3 sm:px-6 py-4 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                #{{ order.id }}
+              </td>
+              <td
+                class="px-3 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+              >
+                <div>
+                  <div class="font-medium text-gray-900 dark:text-white">
+                    {{ order.customerName }}
+                  </div>
+                  <div
+                    class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]"
+                  >
+                    {{ order.customerAddress }}
+                  </div>
+                </div>
+              </td>
+              <td
+                class="px-3 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+              >
+                {{ formatDate(order.orderDate!) }}
+              </td>
+              <td
+                class="px-3 sm:px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+              >
+                {{ order.orderItems?.length || 0 }} items
+              </td>
+              <td
+                class="px-3 sm:px-6 py-4 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                {{ formatCurrency(order.totalAmount || 0) }}
+              </td>
+              <td class="px-3 sm:px-6 py-4 text-sm font-medium">
+                <div class="flex space-x-2">
+                  <button
+                    (click)="openOrderDetailsModal(order)"
+                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900"
+                    title="View details"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button
+                    (click)="openOrderModal(order)"
+                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 px-2 py-1 rounded hover:bg-green-50 dark:hover:bg-green-900"
+                    title="Edit order"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    (click)="confirmDeleteOrder(order)"
+                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900"
+                    title="Delete order"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr *ngIf="paginatedOrders.length === 0">
+              <td colspan="6" class="px-3 sm:px-6 py-12 text-center">
+                <div class="text-gray-400 dark:text-gray-500">
+                  <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                  <h3
+                    class="text-lg font-medium text-gray-900 dark:text-white mb-2"
+                  >
+                    No orders found
+                  </h3>
+                  <p class="text-gray-500 dark:text-gray-400">
+                    {{
+                      filteredOrders.length === 0 && orders.length > 0
+                        ? "Try adjusting your filters"
+                        : "Create your first order to get started"
+                    }}
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div
+        *ngIf="!isLoading && filteredOrders.length > itemsPerPage"
+        class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-600"
+      >
+        <div class="text-sm text-gray-700 dark:text-gray-300">
+          Page {{ currentPage }} of {{ totalPages }}
+        </div>
+        <div class="flex space-x-2">
+          <button
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1"
+            class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <button
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            (click)="goToPage(i + 1)"
+            [class]="
+              'px-3 py-1 rounded text-sm ' +
+              (currentPage === i + 1
+                ? 'bg-blue-600 text-white'
+                : 'border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700')
+            "
+          >
+            {{ i + 1 }}
+          </button>
+          <button
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages"
+            class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div
+  *ngIf="showDeleteConfirmModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4"
+  >
+    <div class="p-6">
+      <div class="flex items-center mb-4">
+        <div
+          class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900"
+        >
+          <i
+            class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"
+          ></i>
+        </div>
+      </div>
+      <div class="text-center">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          Confirm Delete
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Are you sure you want to delete the order for "{{
+            deleteOrder?.customerName
+          }}"? This action cannot be undone.
+        </p>
+      </div>
+      <div
+        class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3"
+      >
+        <button
+          (click)="cancelDelete()"
+          class="modal-button border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="executeDelete()"
+          class="modal-button bg-red-600 hover:bg-red-700 text-white"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Modal (Create/Edit) -->
+<div
+  *ngIf="showOrderModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700"
+    >
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ isEditingOrder ? "Edit Order" : "Create New Order" }}
+      </h3>
+      <button
+        (click)="closeOrderModal()"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
+        <!-- Customer Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Customer Name *</label
+            >
+            <input
+              type="text"
+              formControlName="customerName"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="Enter customer name"
+            />
+            <div
+              *ngIf="
+                orderForm.get('customerName')?.invalid &&
+                orderForm.get('customerName')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              Customer name is required (minimum 2 characters)
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Customer Address *</label
+            >
+            <input
+              type="text"
+              formControlName="customerAddress"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              placeholder="Enter customer address"
+            />
+            <div
+              *ngIf="
+                orderForm.get('customerAddress')?.invalid &&
+                orderForm.get('customerAddress')?.touched
+              "
+              class="text-red-500 text-xs mt-1"
+            >
+              Customer address is required (minimum 5 characters)
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+              Order Items
+            </h4>
+            <button
+              type="button"
+              (click)="addOrderItem()"
+              class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm"
+            >
+              <i class="fas fa-plus mr-1"></i>
+              Add Item
+            </button>
+          </div>
+
+          <div formArrayName="orderItems" class="space-y-4">
+            <div
+              *ngFor="let item of orderItems.controls; let i = index"
+              [formGroupName]="i"
+              class="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-2">
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >Product *</label
+                  >
+                  <select
+                    formControlName="productId"
+                    (change)="onProductChange(i)"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="">Select a product</option>
+                    <option
+                      *ngFor="let product of products"
+                      [value]="product.id"
+                    >
+                      {{ product.name }} - {{ formatCurrency(product.price) }}
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >Quantity *</label
+                  >
+                  <input
+                    type="number"
+                    formControlName="quantity"
+                    (input)="onQuantityChange()"
+                    min="1"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+
+                <div class="flex items-end">
+                  <button
+                    type="button"
+                    (click)="removeOrderItem(i)"
+                    class="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div
+                *ngIf="item.get('productId')?.value"
+                class="mt-2 text-sm text-gray-600 dark:text-gray-400"
+              >
+                Price:
+                {{ formatCurrency(item.get("priceAtOrder")?.value || 0) }} ×
+                {{ item.get("quantity")?.value || 0 }} =
+                {{
+                  formatCurrency(
+                    (item.get("priceAtOrder")?.value || 0) *
+                      (item.get("quantity")?.value || 0)
+                  )
+                }}
+              </div>
+            </div>
+
+            <div
+              *ngIf="orderItems.length === 0"
+              class="text-center py-8 text-gray-500 dark:text-gray-400"
+            >
+              No items added yet. Click "Add Item" to start building the order.
+            </div>
+          </div>
+
+          <!-- Order Total -->
+          <div
+            *ngIf="orderItems.length > 0"
+            class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+          >
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-medium text-gray-900 dark:text-white"
+                >Total:</span
+              >
+              <span class="text-xl font-bold text-blue-600 dark:text-blue-400">
+                {{ formatCurrency(calculateTotal()) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div
+          class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600"
+        >
+          <button
+            type="button"
+            (click)="closeOrderModal()"
+            class="modal-button border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!orderForm.valid || orderItems.length === 0 || isSaving"
+            class="modal-button bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white"
+          >
+            <i *ngIf="isSaving" class="fas fa-spinner fa-spin mr-2"></i>
+            {{
+              isSaving
+                ? "Saving..."
+                : isEditingOrder
+                ? "Update Order"
+                : "Create Order"
+            }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div
+  *ngIf="showOrderDetailsModal && selectedOrder"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+>
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700"
+    >
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Order Details
+      </h3>
+      <button
+        (click)="closeOrderDetailsModal()"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <!-- Order Information -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            Order ID
+          </h4>
+          <p class="text-lg font-semibold text-gray-900 dark:text-white">
+            #{{ selectedOrder.id }}
+          </p>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            Order Date
+          </h4>
+          <p class="text-lg text-gray-900 dark:text-white">
+            {{ formatDate(selectedOrder.orderDate!) }}
+          </p>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            Customer Name
+          </h4>
+          <p class="text-lg text-gray-900 dark:text-white">
+            {{ selectedOrder.customerName }}
+          </p>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            Total Amount
+          </h4>
+          <p class="text-lg font-semibold text-green-600 dark:text-green-400">
+            {{ formatCurrency(selectedOrder.totalAmount || 0) }}
+          </p>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+          Customer Address
+        </h4>
+        <p class="text-gray-900 dark:text-white">
+          {{ selectedOrder.customerAddress }}
+        </p>
+      </div>
+
+      <!-- Order Items -->
+      <div>
+        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+          Order Items
+        </h4>
+        <div class="space-y-3">
+          <div
+            *ngFor="let item of selectedOrder.orderItems"
+            class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+          >
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white">
+                {{ getProductName(item.productId) }}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Quantity: {{ item.quantity }}
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="font-medium text-gray-900 dark:text-white">
+                {{ formatCurrency(item.priceAtOrder || 0) }}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ formatCurrency((item.priceAtOrder || 0) * item.quantity) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div
+        class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-600"
+      >
+        <button
+          (click)="openOrderModal(selectedOrder); closeOrderDetailsModal()"
+          class="modal-button bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          <i class="fas fa-edit mr-2"></i>
+          Edit Order
+        </button>
+        <button
+          (click)="confirmDeleteOrder(selectedOrder)"
+          class="modal-button bg-red-600 hover:bg-red-700 text-white"
+        >
+          <i class="fas fa-trash mr-2"></i>
+          Delete Order
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
