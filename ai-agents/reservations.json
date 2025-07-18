@@ -1,0 +1,362 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e6ff4ac1-cfed-4e91-aee0-389c801aefd6",
+        "options": {
+          "allowedOrigins": "https://clientapp-lx5b.vercel.app"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1720,
+        40
+      ],
+      "id": "e06602b2-cd97-4991-abeb-df58eb5559b3",
+      "name": "Webhook1",
+      "webhookId": "e6ff4ac1-cfed-4e91-aee0-389c801aefd6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "xi-api-key",
+              "value": "sk_f878eefb6f20d28f855b69b28fcb3064e7f90965c19bee51"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"agent_id\": \"agent_01jzaef2q5f5zvcw363tn1gf24\",\n  \"agent_phone_number_id\": \"phnum_01jw05dzmhfx39a9v18eanshg6\",\n  \"to_number\": \"+40783117797\",\n  \"conversation_initiation_client_data\": {\n    \"type\": \"conversation_initiation_client_data\",\n    \"conversation_config_override\": {\n      \"agent\": {}\n    },\n    \"dynamic_variables\": {\n      \"date_restaurant\": \"{{$json.dateContactString.replace(/\\n/g, '\\\\n')}}\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1060,
+        40
+      ],
+      "id": "8e2c4b9c-32eb-4982-a976-6fcbf76d36dc",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -840,
+        40
+      ],
+      "id": "0cbbdc0a-33dd-4940-895b-22287f59ecc5",
+      "name": "Wait1",
+      "webhookId": "d1b9f622-7070-424b-9ae1-224c61c422d2"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.elevenlabs.io/v1/convai/conversations/{{$node[\"HTTP Request5\"].json[\"conversation_id\"]}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_f878eefb6f20d28f855b69b28fcb3064e7f90965c19bee51"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -620,
+        40
+      ],
+      "id": "061ed64a-a0a5-4870-a38f-922397117052",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Get all items\nconst items = $input.all();\n\n// 2) Extract full JSON from the first item\nconst data = items[0].json;\n\n// 3) Fallback to empty array if transcript doesn't exist\nconst transcript = data.transcript || [];\n\n// 4) Build conversation string safely\nlet fullConversation = '';\n\nif (Array.isArray(transcript) && transcript.length > 0) {\n  fullConversation = transcript\n    .map(turn => {\n      const role = turn.role || 'unknown';\n      const message = (turn.message || '').replace(/\\n/g, ' ').trim();\n      return `${role}: ${message}`;\n    })\n    .join(' ');\n} else if (data.analysis?.transcript_summary) {\n  fullConversation = (data.analysis.transcript_summary || '').replace(/\\n/g, ' ').trim();\n}\n\n// 5) Return the result\nreturn [{\n  json: {\n    conversationString: fullConversation\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        40
+      ],
+      "id": "879bdc7d-5b67-4ddb-87c3-7daa8d5c9df0",
+      "name": "Code8"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -280,
+        240
+      ],
+      "id": "7ae0bbe5-aff2-416f-95b6-435c6b7e3740",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Zpmc58TXItolAhoD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.conversationString }}",
+        "options": {
+          "systemMessage": "## Rol Principal și Obiectiv\nEști un motor de procesare a limbajului natural (NLP), specializat în extragerea de date structurate. Funcția ta este să analizezi o transcriere de conversație și să extragi detaliile specifice unei rezervări la restaurant. Ignoră complet dialogul de umplutură și concentrează-te exclusiv pe detaliile finale, confirmate de client. Output-ul tău trebuie să fie doar un obiect JSON valid, fără niciun alt text.\n\n## Reguli de Bază și Context\nPrincipiul Confirmării Finale: Extragerea se bazează doar pe detaliile finale, agreate de client. Dacă un utilizator își schimbă opțiunea (ex: \"de fapt, venim la 8, nu la 7\"), vei extrage ultima valoare confirmată (\"ora\": \"20:00\"). Acordă o atenție deosebită recapitulării făcute de agent și confirmării clientului.\n\nGestionarea Datelor Lipsă: Dacă una dintre informațiile obligatorii (nume, data, ora, numar_persoane, telefon) nu poate fi găsită în transcriere, valoarea cheii corespunzătoare în JSON trebuie să fie null. Nu inventa și nu ghici date.\n\nFormat de Output Strict: Răspunsul tău trebuie să conțină exclusiv obiectul JSON. Nu adăuga text explicativ, comentarii sau formatare markdown precum ```json.\n\n## Schema JSON de Output și Reguli Specifice\nTrebuie să populezi următorul obiect JSON. Nu adăuga câmpuri suplimentare.\n\nJSON\n\n{\n  \"nume\": \"string\",\n  \"data\": \"string (format YYYY-MM-DD)\",\n  \"ora\": \"string (format HH:MM)\",\n  \"numar_persoane\": \"integer\",\n  \"telefon\": \"string\",\n  \"detalii_suplimentare\": \"string\"\n}\n### Instrucțiuni Specifice pentru Fiecare Câmp:\nnume:\n\nExtrage numele complet oferit pentru rezervare.\n\nExemplu: \"Popescu\", \"Andrei Ionescu\".\n\ndata:\n\nExtrage data finală și confirmată a rezervării.\n\nObligatoriu: Converteste data în formatul YYYY-MM-DD.\n\nData de referință pentru \"azi\" este 2025-07-05. Gestionează corect date relative precum \"mâine\", \"poimâine\", \"sâmbăta viitoare\".\n\nExemplu: \"15 august\" devine \"2025-08-15\". \"mâine\" devine \"2025-07-06\".\n\nora:\n\nExtrage ora finală și confirmată.\n\nObligatoriu: Converteste ora în format de 24 de ore (HH:MM).\n\nGestionează formate precum \"7 seara\", \"10 jumate\", \"la prânz\".\n\nExemplu: \"7 seara\" devine \"19:00\". \"10 si jumatate\" devine \"10:30\".\n\nnumar_persoane:\n\nExtrage numărul final de persoane.\n\nObligatoriu: Output-ul trebuie să fie un număr întreg (integer), nu un șir de caractere.\n\nExemplu: \"doua persoane\" devine 2. \"un grup de sase\" devine 6.\n\ntelefon (NOU):\n\nExtrage numărul de telefon de contact oferit pentru rezervare.\n\nOutput-ul trebuie să fie un șir de caractere (string).\n\nExemplu: \"0722 123 456\" devine \"0722123456\".\n\ndetalii_suplimentare:\n\nExtrage orice cerere specială, notă sau detaliu suplimentar.\n\nInclude mențiuni precum \"scaun de copil\", \"o masa la geam\", \"alergie la nuci\".\n\nDacă nu sunt oferite detalii, valoarea trebuie să fie null.\n\n## Exemplu Complet (Input -> Output)\n### Input Transcript:\nAgent: Bună ziua și bun venit la FCSB Pizza! Pentru câte persoane doriți să fie rezervarea?\nClient: Salut. Pentru două persoane.\nAgent: Perfect. Am notat. Pentru ce dată doriți să faceți rezervarea?\nClient: Pentru mâine.\nAgent: Mulțumesc! Am înregistrat data de 6 iulie. La ce oră ați dori să fie rezervarea?\nClient: La 7 seara. Nu, scuze, mai bine la 8.\nAgent: Nicio problemă. Am notat ora 20:00. Pe ce nume să înregistrez rezervarea?\nClient: Ionescu.\nAgent: Mulțumesc, domnule Ionescu. Un număr de telefon, vă rog, pentru a vă putea contacta în cazul unor modificări.\nClient: Sigur, 0712 345 678.\nAgent: Perfect, am notat. Înainte de a confirma, aveți vreo preferință specială?\nClient: Nu, mulțumesc.\nAgent: În regulă. Haideți să recapitulăm. Doriți o rezervare pentru 2 persoane, pe numele Ionescu, în data de 6 iulie 2025, la ora 20:00, număr de contact 0712345678. Este totul corect?\nClient: Da, perfect. Mulțumesc!\nAgent: Excelent! Rezervarea dumneavoastră a fost confirmată. Vă așteptăm!\n### Your Expected Output (doar acest JSON):\nJSON\n\n{\n  \"nume\": \"Ionescu\",\n  \"data\": \"2025-07-06\",\n  \"ora\": \"20:00\",\n  \"numar_persoane\": 2,\n  \"telefon\": \"0712345678\",\n  \"detalii_suplimentare\": null\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -180,
+        40
+      ],
+      "id": "826329c9-f03b-4ce1-aaeb-00a6b676c75b",
+      "name": "AI Agent4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- Funcția de curățare a prefixului și sufixului ---\nfunction curataMarkdown(inputString) {\n  // Verifică dacă avem un string valid\n  if (!inputString || typeof inputString !== 'string') {\n    return inputString;\n  }\n  \n  // Elimină spațiile de la început și sfârșit pentru o verificare corectă\n  let text = inputString.trim();\n\n  // Elimină prefixul (```json sau ```)\n  if (text.startsWith('```json')) {\n    text = text.slice(7);\n  } else if (text.startsWith('```')) {\n    text = text.slice(3);\n  }\n\n  // Elimină sufixul (```)\n  if (text.endsWith('```')) {\n    text = text.slice(0, -3);\n  }\n\n  // Returnează textul final, curățat de orice alte spații rămase la capete\n  return text.trim();\n}\n\n\n// --- Logica principală a nodului ---\n\n// Pasul 1: Preia textul de la AI Agent din input\nconst textDeLaAI = $json.output;\n\n// Pasul 2: Apelează noua funcție pentru a curăța textul\nconst textCuratat = curataMarkdown(textDeLaAI);\n\n// Pasul 3: Returnează textul curățat în formatul corect cerut de n8n\nreturn [{\n  json: {\n    output_curatat: textCuratat\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        40
+      ],
+      "id": "a8aa377e-51e0-45aa-bfcb-1c4158c2a8f8",
+      "name": "Code9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pasul 1: Preia corect string-ul JSON din input, de la cheia \"output_curatat\".\n// Aceasta este linia care lipsea sau era greșită în codul tău.\nconst jsonString = $input.first().json.output_curatat;\n\ntry {\n  // Pasul 2: Transformă textul într-un obiect JavaScript real (parsează-l).\n  const inputData = JSON.parse(jsonString);\n\n  // Pasul 3: Combină data și ora în formatul ISO \"YYYY-MM-DDTHH:MM:SS\".\n  const reservationDateTimeString = `${inputData.data}T${inputData.ora}:00`;\n\n  // Pasul 4: Construiește obiectul final cu numele corecte ale câmpurilor.\n  // Pasul 4: Construiește obiectul final cu numele corecte ale câmpurilor.\n  const finalApiBody = {\n    customerName: inputData.nume,\n    phoneNumber: inputData.telefon, // Aici este modificarea\n    reservationDateTime: reservationDateTimeString,\n    numberOfPeople: inputData.numar_persoane\n  };\n\n  // Pasul 5: Returnează body-ul final, gata pentru nodul HTTP Request.\n  return [{\n    json: {\n      \"body_final_pentru_api\": finalApiBody\n    }\n  }];\n\n} catch (error) {\n  // Gestionează eventualele erori.\n  return [{\n    json: {\n      error: \"Eroare la procesarea datelor în nodul Code\",\n      textul_primit: jsonString,\n      detalii_tehnice: error.message\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        40
+      ],
+      "id": "59b67f84-8cff-4e9e-9ac9-6b3289c44ad0",
+      "name": "Code10"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://reservation-service-production.up.railway.app/api/reservations/user",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body_final_pentru_api }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        40
+      ],
+      "id": "da1df3fc-1cac-4993-a57a-5a6e0394390d",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "url": "https://contact-service-production.up.railway.app/api/contact",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1500,
+        40
+      ],
+      "id": "0dd136e1-62fa-4edd-ad94-53e12ed744a7",
+      "name": "HTTP Request8"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Preluăm primul item din input (output-ul de la HTTP Request)\nconst item = items[0].json;\n\n// Extragem datele de care avem nevoie\nconst email = item.email;\nconst telefon = item.phone;\nconst program = item.schedule;\n\n// Construim string-ul final cu etichete clare și un rând nou între ele\nconst dateContact = `Email: ${email}\\nTelefon: ${telefon}\\nProgram: ${program}`;\n\n// Returnăm un obiect nou care conține string-ul creat\n// Acesta va fi output-ul nodului curent, disponibil pentru următoarele noduri din workflow\nreturn [{\n  json: {\n    dateContactString: dateContact\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1280,
+        40
+      ],
+      "id": "f6851fde-d239-41ad-8e6a-448f889df140",
+      "name": "Code11"
+    },
+    {
+      "parameters": {
+        "content": "## Rezervari ",
+        "height": 620,
+        "width": 3600
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2280,
+        -220
+      ],
+      "typeVersion": 1,
+      "id": "12259542-68dd-4f8a-90dc-abe8fafa383c",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code8": {
+      "main": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent4": {
+      "main": [
+        [
+          {
+            "node": "Code9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code9": {
+      "main": [
+        [
+          {
+            "node": "Code10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code10": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8": {
+      "main": [
+        [
+          {
+            "node": "Code11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code11": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "92325d61-f0e5-419a-a5f3-56f5901fc5c2",
+  "meta": {
+    "instanceId": "f0e78210f3031a1cc931caa169422f31d68a991cb6d36b9ccb7f2104440ca85d"
+  },
+  "id": "0tE3wmLTtw85UtXC",
+  "tags": []
+}

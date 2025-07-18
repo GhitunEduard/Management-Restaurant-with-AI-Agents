@@ -1,0 +1,639 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "xi-api-key",
+              "value": "sk_f878eefb6f20d28f855b69b28fcb3064e7f90965c19bee51"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"agent_id\": \"agent_01jyvk1dx9e5bsa5cp4knm1k95\",\n  \"agent_phone_number_id\": \"phnum_01jw05dzmhfx39a9v18eanshg6\",\n  \"to_number\": \"+40783117797\",\n  \"conversation_initiation_client_data\": {\n    \"type\": \"conversation_initiation_client_data\",\n    \"conversation_config_override\": {\n      \"agent\": {}\n    },\n    \"dynamic_variables\": {\n      \"meniu_restaurant\": \"${{$json.meniu_complet}}\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3620,
+        280
+      ],
+      "id": "da922766-334c-421e-9cc5-5e719ea93075",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.elevenlabs.io/v1/convai/conversations/{{$node[\"HTTP Request\"].json[\"conversation_id\"]}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_f878eefb6f20d28f855b69b28fcb3064e7f90965c19bee51"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3180,
+        280
+      ],
+      "id": "af0c50d3-bf54-4a51-a53b-f1ef6738d34b",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Get all items\nconst items = $input.all();\n\n// 2) Extract full JSON from the first item\nconst data = items[0].json;\n\n// 3) Fallback to empty array if transcript doesn't exist\nconst transcript = data.transcript || [];\n\n// 4) Build conversation string safely\nlet fullConversation = '';\n\nif (Array.isArray(transcript) && transcript.length > 0) {\n  fullConversation = transcript\n    .map(turn => {\n      const role = turn.role || 'unknown';\n      const message = (turn.message || '').replace(/\\n/g, ' ').trim();\n      return `${role}: ${message}`;\n    })\n    .join(' ');\n} else if (data.analysis?.transcript_summary) {\n  fullConversation = (data.analysis.transcript_summary || '').replace(/\\n/g, ' ').trim();\n}\n\n// 5) Return the result\nreturn [{\n  json: {\n    conversationString: fullConversation\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2960,
+        280
+      ],
+      "id": "0750b8d1-7d25-4299-af34-ec7ca40951da",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ea8dd505-0bae-437b-a80a-8220807934fa",
+        "options": {
+          "allowedOrigins": "https://clientapp-lx5b.vercel.app"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -4280,
+        280
+      ],
+      "id": "e2634ae7-d508-48bd-80ee-ece7fc113aee",
+      "name": "Webhook",
+      "webhookId": "ea8dd505-0bae-437b-a80a-8220807934fa"
+    },
+    {
+      "parameters": {
+        "url": "https://product-service-production-991d.up.railway.app/api/products/details",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4060,
+        280
+      ],
+      "id": "4e3f684c-7bc7-4eba-b784-6dc8a10aaf24",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet meniuString = \"Meniu Restaurant: \";\n\nfor (const item of items) {\n  const produs = item.json;\n  const listaIngrediente = produs.ingredients.map(ing => ing.name).join(', ');\n\n  meniuString += `Nume: ${produs.name}. `;\n  meniuString += `Descriere: ${produs.description}. `;\n  meniuString += `Preț: ${produs.price} lei. `;\n  meniuString += `Ingrediente: ${listaIngrediente}. --- `;\n}\n\n// ADAUGĂ ACEASTĂ LINIE PENTRU A ESCAPA CARACTERELE\nmeniuString = meniuString.replace(/\\\\/g, '\\\\\\\\').replace(/\"/g, '\\\\\"');\n\nreturn [{\n  json: {\n    meniu_complet: meniuString\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3840,
+        280
+      ],
+      "id": "6ece7cd7-6b25-4b06-b036-e4cdedf567b2",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "url": "https://product-service-production-991d.up.railway.app/api/products/details",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2320,
+        -80
+      ],
+      "id": "d22511e9-7b45-4ce9-86f2-e19f6da36cba",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\"{{ $json.prompt_pregatit }}\"",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1780,
+        -140
+      ],
+      "id": "f7f1d03f-2b51-4a54-b08e-8493d4bcaf71",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1920,
+        100
+      ],
+      "id": "bbede196-3f3c-4546-966f-bc0e3255d6e6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Zpmc58TXItolAhoD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =================================================================\n//          CODUL FINAL ȘI COMPLET PENTRU NODUL \"CODE\"\n// =================================================================\n// Scop: Combină comanda clientului și meniul complet într-un singur prompt\n// pentru a fi trimis la următorul agent AI.\n\n// --- Pasul 1: Preluarea datelor ---\n\n// Preia comanda text de la nodul 'AI Agent3'.\nconst rawComandaText = $('AI Agent3').item.json.output;\n\n// --- AICI ESTE REMEDIEREA ---\n// Curățăm textul de orice spații sau linii noi de la început sau sfârșit.\nconst comandaText = rawComandaText.trim();\n\n\n// Preia lista de produse (meniul) de la nodul 'HTTP Request3'.\nconst meniuItems = $items('HTTP Request3');\n\n\n// --- Pasul 2: Pregătirea datelor pentru prompt ---\n\n// Transformă lista de item-uri n8n într-un array JSON standard și apoi într-un string.\nconst meniuJSONString = JSON.stringify(meniuItems.map(item => item.json));\n\n\n// --- Pasul 3: Construirea promptului detaliat ---\n\nconst promptFinal = `\nEști un sistem expert în procesarea comenzilor de restaurant. Sarcina ta este să corelezi o comandă text cu un meniu complet în format JSON.\n\nMai jos ai două informații:\n\n1.  **MENIUL COMPLET (în format JSON array):**\n    ${meniuJSONString}\n\n2.  **COMANDA CLIENTULUI (în format text):**\n    \"${comandaText}\"\n\nAnalizează comanda clientului și identifică produsele corespunzătoare din meniul JSON.\nSarcina ta este să returnezi un nou array JSON care conține **doar obiectele complete** ale produselor comandate, exact așa cum apar ele în meniul JSON furnizat.\n\nREGULĂ CRITICĂ: Trebuie să respecți cantitatea. Dacă în comandă scrie \"2xBere\", obiectul JSON pentru \"Bere\" trebuie să apară de două ori în array-ul final.\n\nReturnează **doar** array-ul JSON valid. Răspunsul tău NU trebuie să conțină text explicativ, comentarii sau formatare markdown, **în special caracterele \\`\\`\\` **, în afara array-ului.\n`;\n\n\n// --- Pasul 4: Returnarea promptului ---\n\n// Nodul returnează un singur obiect.\n// Cheia 'prompt_pregatit' va fi folosită în nodul AI Agent următor.\nreturn [{\n  json: {\n    prompt_pregatit: promptFinal\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2100,
+        -60
+      ],
+      "id": "d0a00809-a907-486e-aa88-2de4e547425c",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- Funcția de curățare a prefixului și sufixului ---\nfunction curataMarkdown(inputString) {\n  // Verifică dacă avem un string valid\n  if (!inputString || typeof inputString !== 'string') {\n    return inputString;\n  }\n  \n  // Elimină spațiile de la început și sfârșit pentru o verificare corectă\n  let text = inputString.trim();\n\n  // Elimină prefixul (```json sau ```)\n  if (text.startsWith('```json')) {\n    text = text.slice(7);\n  } else if (text.startsWith('```')) {\n    text = text.slice(3);\n  }\n\n  // Elimină sufixul (```)\n  if (text.endsWith('```')) {\n    text = text.slice(0, -3);\n  }\n\n  // Returnează textul final, curățat de orice alte spații rămase la capete\n  return text.trim();\n}\n\n\n// --- Logica principală a nodului ---\n\n// Pasul 1: Preia textul de la AI Agent din input\nconst textDeLaAI = $json.output;\n\n// Pasul 2: Apelează noua funcție pentru a curăța textul\nconst textCuratat = curataMarkdown(textDeLaAI);\n\n// Pasul 3: Returnează textul curățat în formatul corect cerut de n8n\nreturn [{\n  json: {\n    output_curatat: textCuratat\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        -160
+      ],
+      "id": "ca3caed3-7482-4155-97c5-0c88ad8f6155",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.conversationString }}",
+        "options": {
+          "systemMessage": "Sigur, am modificat promptul pentru a extrage doar numele, adresa și numărul de telefon, simplificând formatul de output și eliminând toate instrucțiunile irelevante.\n\n## Prompt Modificat\nRolul Tău\nEști un agent AI specializat în extragerea precisă a datelor de contact din conversațiile dintre agenții de vânzări și clienți. Analizezi conversațiile și extragi informațiile esențiale într-un format structurat.\n\nInstrucțiuni Principale\n\nCe să Extragi\nDin conversația primită, identifică și extrage:\n\nNumele clientului - numele complet menționat de client\n\nAdresa de livrare - adresa completă inclusiv strada, numărul și orice alte detalii menționate (bloc, scară, etc.)\n\nNumărul de telefon - numărul complet de contact\n\nFormat de Output\nReturnează datele în format JSON valid. Răspunsul tău trebuie să conțină doar acest format, fără nicio explicație sau text suplimentar.\n\nJSON\n\n{\n  \"nume_client\": \"numele complet al clientului\",\n  \"adresa\": \"adresa completă de livrare\",\n  \"telefon\": \"numărul de telefon\"\n}\nReguli de Procesare\n\nPentru Nume: Extrage numele exact cum l-a spus clientul. Dacă nu este menționat, folosește valoarea \"NU A FOST MENȚIONAT\".\n\nPentru Adresă: Include toate detaliile adresei menționate. Păstrează forma exactă rostită de client. Dacă nu este menționată, folosește valoarea \"NU A FOST MENȚIONAT\".\n\nPentru Telefon: Extrage numărul complet cu toate cifrele. Dacă nu este menționat, folosește valoarea \"NU A FOST MENȚIONAT\".\n\nAtenție Specială\n\nNu adăuga informații care nu au fost menționate explicit.\n\nNu presupune nimic - extrage doar ce se găsește în conversație.\n\nRespectă formatul JSON exact, folosind ghilimele duble pentru toate cheile și valorile de tip text.\n\nFii foarte atent la detaliile numerelor de telefon și adreselor.\n\nExemplu de Procesare\n\nInput: Conversație în care clientul spune \"Mă numesc Ion Popescu, locuiesc pe Calea Victoriei 123, bloc A, apartament 15, telefonul meu este 0721234567, vreau 2 pizza Margherita\"\n\nOutput:\n\nJSON\n\n{\n  \"nume_client\": \"Ion Popescu\",\n  \"adresa\": \"Calea Victoriei 123, bloc A, apartament 15\",\n  \"telefon\": \"0721234567\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1924,
+        480
+      ],
+      "id": "af24add1-6530-40f3-a137-eaca055f3b11",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1836,
+        700
+      ],
+      "id": "81b27d4b-c80e-4c57-84ff-835738d7eccb",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Zpmc58TXItolAhoD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const stringInput = $input.first().json.output_curatat;\n\n// Caută indexul de început '[' și de sfârșit ']' al array-ului JSON.\nconst startIndex = stringInput.indexOf('[');\nconst endIndex = stringInput.lastIndexOf(']');\n\n// Verifică dacă am găsit un început și un sfârșit valid.\nif (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {\n  return [{\n    json: {\n      error: \"Inputul nu pare să conțină un array JSON valid (nu s-a găsit '[' sau ']').\",\n      string_incercat: stringInput\n    }\n  }];\n}\n\n// Extrage substring-ul care ar trebui să fie JSON-ul curat.\n// Adăugăm +1 la endIndex pentru a include paranteza ']' în selecție.\nconst jsonExtras = stringInput.substring(startIndex, endIndex + 1);\n\n// Încearcă să parsezi doar porțiunea extrasă.\ntry {\n  const jsonReal = JSON.parse(jsonExtras);\n\n  // Returnează rezultatul dacă parsarea a reușit.\n  return [{\n    json: {\n      produse: jsonReal\n    }\n  }];\n\n} catch (error) {\n  // Dacă parsarea tot eșuează, problema este ÎN INTERIORUL textului JSON.\n  return [{\n    json: {\n      error: \"Parsarea a eșuat chiar și după extragerea forțată a conținutului JSON.\",\n      string_extras_incercat: jsonExtras, // Afișează exact ce s-a încercat a parsa\n      detalii_eroare: error.message\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1240,
+        0
+      ],
+      "id": "c6327fdb-d171-4f5a-9efc-357dc68a4769",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://product-service-production-991d.up.railway.app/api/orders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -668,
+        280
+      ],
+      "id": "2988137c-106d-44f2-9db0-49927e3faf74",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "k6oqhIOVpqPG0l7L",
+          "name": "Header Auth account"
+        },
+        "httpBearerAuth": {
+          "id": "pbcBTB0IkmPCnsnj",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3400,
+        280
+      ],
+      "id": "f5572ff1-e8a8-4528-a039-b33d44a5fecb",
+      "name": "Wait",
+      "webhookId": "d1b9f622-7070-424b-9ae1-224c61c422d2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- Funcția de curățare a prefixului și sufixului ---\nfunction curataMarkdown(inputString) {\n  // Verifică dacă avem un string valid\n  if (!inputString || typeof inputString !== 'string') {\n    return inputString;\n  }\n  \n  // Elimină spațiile de la început și sfârșit pentru o verificare corectă\n  let text = inputString.trim();\n\n  // Elimină prefixul (```json sau ```)\n  if (text.startsWith('```json')) {\n    text = text.slice(7);\n  } else if (text.startsWith('```')) {\n    text = text.slice(3);\n  }\n\n  // Elimină sufixul (```)\n  if (text.endsWith('```')) {\n    text = text.slice(0, -3);\n  }\n\n  // Returnează textul final, curățat de orice alte spații rămase la capete\n  return text.trim();\n}\n\n\n// --- Logica principală a nodului ---\n\n// Pasul 1: Preia textul de la AI Agent din input\nconst textDeLaAI = $json.output;\n\n// Pasul 2: Apelează noua funcție pentru a curăța textul\nconst textCuratat = curataMarkdown(textDeLaAI);\n\n// Pasul 3: Returnează textul curățat în formatul corect cerut de n8n\nreturn [{\n  json: {\n    output_curatat: textCuratat\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1548,
+        480
+      ],
+      "id": "34137ba6-fa45-44d1-a31f-83e3b602f007",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Acest cod trebuie pus în nodul 'Code7'\n\n// Pasul 1: Preia textul JSON curățat de la nodul anterior (Code6).\n// Cheia este 'output_curatat', conform screenshot-ului tău pentru Code6.\nconst stringJsonCurat = $json.output_curatat;\n\n// Pasul 2: Încearcă să transformi textul într-un obiect JavaScript real.\n// Folosim un bloc try...catch pentru siguranță.\ntry {\n  // JSON.parse() este funcția care face conversia.\n  const obiectJsonReal = JSON.parse(stringJsonCurat);\n\n  // Returnează obiectul real. Acesta va fi output-ul final al ramurii de jos,\n  // conținând { nume_client: \"...\", adresa: \"...\", telefon: \"...\" }.\n  return [{\n    json: obiectJsonReal\n  }];\n\n} catch (error) {\n  // Dacă parsarea eșuează, returnează o eroare clară pentru depanare.\n  return [{\n    json: {\n      error: \"Eroare la parsarea JSON-ului în nodul Code7\",\n      textul_incercat: stringJsonCurat,\n      detalii_eroare: error.message\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1328,
+        480
+      ],
+      "id": "d92f6e23-85c2-4d69-97e6-df266393ee75",
+      "name": "Code7"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2700,
+        120
+      ],
+      "id": "a18cd647-27c4-4de0-a04b-f0dcafc92bc1",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Zpmc58TXItolAhoD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.conversationString }}",
+        "options": {
+          "systemMessage": "Rolul Tău\nEști un agent AI specializat în extragerea precisă a datelor de livrare din conversațiile dintre agenții de vânzări și clienți. Analizezi conversațiile și extragi informațiile esențiale pentru livrare într-un format structurat.\nInstrucțiuni Principale\nCe să Extragi\nDin conversația primită, identifică și extrage:\n\nNumele clientului - numele complet menționat de client\nAdresa de livrare - adresa completă inclusiv:\n\nStrada și numărul\nBlocul, scara, etajul, apartamentul (dacă sunt menționate)\nAlte detalii de localizare\n\n\nNumărul de telefon - numărul complet de contact\nComanda plasată - produsele comandate cu cantitățile\nCostul total - prețul final menționat\n\nFormat de Output\nReturnează datele în format JSON valid:\njson{\n  \"nume_client\": \"numele complet al clientului\",\n  \"adresa\": \"adresa completă de livrare\",\n  \"telefon\": \"numărul de telefon\",\n  \"comanda\": [\n    {\n      \"produs\": \"numele produsului\",\n      \"cantitate\": numărul de bucăți\n    }\n  ],\n  \"cost_total\": \"suma în lei\",\n  \"status\": \"COMPLET sau INCOMPLET\",\n  \"observatii\": \"detalii suplimentare dacă sunt necesare\"\n}\nReguli de Procesare\nPentru Nume:\n\nExtrage numele exact cum l-a spus clientul\nPăstrează forma originală (nu corecta ortografia)\nDacă clientul nu și-a spus numele, scrie \"NU A FOST MENȚIONAT\"\n\nPentru Adresă:\n\nInclude toate detaliile menționate: strada, numărul, blocul, etc.\nDacă adresa pare incompletă, marchează în STATUS ca \"INCOMPLET\"\nPăstrează forma exactă rostită de client\n\nPentru Telefon:\n\nExtrage numărul complet cu toate cifrele\nPăstrează formatul original (cu sau fără spații/liniuțe)\nVerifică că are numărul corect de cifre pentru un telefon românesc\n\nPentru Comandă:\n\nCreează un array de obiecte cu \"produs\" și \"cantitate\"\nInclude cantitățile ca numere întregi\nPăstrează numele produselor exact cum au fost rostite\n\nPentru Observații:\n\nAdaugă orice detalii suplimentare relevante pentru livrare\nDe exemplu: \"Client a cerut fără ingrediente speciale\" sau \"Adresa pare incompletă\"\nDacă nu sunt observații, lasă câmpul gol \"\"\n\nPentru Cost:\n\nExtrage suma totală finală menționată\nInclude \"lei\" la sfârșit\nDacă nu e menționat costul, scrie \"NU A FOST SPECIFICAT\"\n\nExemple de Procesare\nInput: Conversație în care clientul spune \"Mă numesc Ion Popescu, locuiesc pe Calea Victoriei 123, bloc A, apartament 15, telefonul meu este 0721234567, vreau 2 pizza Margherita\"\nOutput:\njson{\n  \"nume_client\": \"Ion Popescu\",\n  \"adresa\": \"Calea Victoriei 123, bloc A, apartament 15\",\n  \"telefon\": \"0721234567\",\n  \"comanda\": [\n    {\n      \"produs\": \"Pizza Margherita\",\n      \"cantitate\": 2\n    }\n  ],\n  \"cost_total\": \"40 lei\",\n  \"status\": \"COMPLET\",\n  \"observatii\": \"\"\n}\nExemplu cu date incomplete:\njson{\n  \"nume_client\": \"Maria\",\n  \"adresa\": \"Strada Florilor\",\n  \"telefon\": \"NU A FOST MENȚIONAT\",\n  \"comanda\": [\n    {\n      \"produs\": \"Pizza Diavola\",\n      \"cantitate\": 1\n    }\n  ],\n  \"cost_total\": \"25 lei\",\n  \"status\": \"INCOMPLET\",\n  \"observatii\": \"Lipsește numărul de telefon și numărul de la adresă\"\n}\nSituații Speciale\nNume Neobișnuite:\n\nPăstrează numele exact, chiar dacă pare neobișnuit\nNu încerca să \"corectezi\" numele ciudate\n\nAdrese Incomplete:\n\nDacă lipsesc detalii importante (numărul casei, etc.), marchează STATUS ca \"INCOMPLET\"\nScrie ce informații lipsesc\n\nDate Contradictorii:\n\nDacă clientul își schimbă datele în timpul conversației, ia ultima versiune menționată\nDacă agentul repetă datele pentru confirmare, verifică că sunt corecte\n\nConversații Incomplete:\n\nDacă conversația se întrerupe înainte să se dea toate datele, marchează datele lipsă ca \"NU A FOST MENȚIONAT\"\n\nAtenție Specială\n\nNu adăuga informații care nu au fost menționate explicit\nNu presupune nimic - doar ce se găsește în conversație\nRespectă formatul JSON exact - asigură-te că JSON-ul este valid\nFolosește ghilimele duble pentru toate string-urile în JSON\nCantitățile să fie numere (nu string-uri cu ghilimele)\nFii foarte atent la detaliile numerelor de telefon și adreselor\nPentru date lipsă folosește \"NU A FOST MENȚIONAT\" ca string\nJSON-ul trebuie să fie valid - verifică virgulele și parantezele\n\nScopul tău este să extragi datele cu precizie maximă într-un format JSON valid pentru procesare automată!"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -2760,
+        -200
+      ],
+      "id": "26c2c386-9b0a-42d9-a1ec-606dcd5529ba",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1100,
+        260
+      ],
+      "id": "5aadba6e-597b-4fec-be60-950012efc087",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input-ul este un array cu două obiecte de la nodul Merge.\nconst inputItems = $input.all();\n\n// --- Pasul 1: Identifică și extrage datele din cele două obiecte primite ---\nlet detaliiClient;\nlet produseComandate;\n\nfor (const item of inputItems) {\n  if (item.json.nume_client) {\n    // Am găsit obiectul cu detaliile clientului.\n    detaliiClient = item.json;\n  } else if (item.json.produse) {\n    // Am găsit obiectul care conține lista de produse.\n    produseComandate = item.json.produse;\n  }\n}\n\nif (!detaliiClient || !produseComandate) {\n  throw new Error(\"Input-ul de la nodul Merge este incomplet. Asigură-te că ambele ramuri produc un rezultat.\");\n}\n\n// --- Pasul 2: Procesează lista de produse ---\nconst produseGrupate = {};\nfor (const produs of produseComandate) {\n  const id = produs.id;\n  if (produseGrupate[id]) {\n    produseGrupate[id].quantity++;\n  } else {\n    produseGrupate[id] = {\n      productId: id,\n      quantity: 1\n    };\n  }\n}\nconst itemsPentruComanda = Object.values(produseGrupate);\n\n// --- Pasul 3: Construiește obiectul final al comenzii ---\nconst comandaFinala = {\n  customerName: detaliiClient.nume_client,\n  customerAddress: detaliiClient.adresa,\n  items: itemsPentruComanda\n  // Notă: Telefonul (detaliiClient.telefon) este disponibil, dar nu este inclus\n  // deoarece clasa `CreateOrderRequest` din backend nu are un câmp pentru el.\n};\n\n// --- Pasul 4: Returnează comanda finală ---\nreturn [{\n  json: comandaFinala\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -888,
+        280
+      ],
+      "id": "be56c1df-cd21-4a87-9723-31a57b22334c",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "content": "##Comeni",
+        "height": 1100,
+        "width": 4540
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4694,
+        -260
+      ],
+      "typeVersion": 1,
+      "id": "ef0cf981-2050-4b07-b248-deb9c0dafa0b",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0bc321c1-a6df-4386-8c45-350f5fded41c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f0e78210f3031a1cc931caa169422f31d68a991cb6d36b9ccb7f2104440ca85d"
+  },
+  "id": "Pi8czfri8R9o6CZS",
+  "tags": []
+}
